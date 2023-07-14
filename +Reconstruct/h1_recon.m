@@ -1,4 +1,4 @@
-function Image_Out = sharp_kern_recon(ImageSize,data,traj)
+function Image_Out = h1_recon(ImageSize,data,traj)
 %% A Function written to reconstruct Images when K-space data and trajectories are passed to it
 % Uses Scott Robertson's reconstruction code - This just makes it more
 % modular and easy to implement - This is for 3D data
@@ -17,9 +17,10 @@ data(toobig) = [];
 traj(toobig,:) = [];
 
 %  Settings
-kernel.sharpness = 0.32;
-kernel.extent = 9*kernel.sharpness;
+kernel.sharpness = 0.15;
+kernel.extent = 7*kernel.sharpness;
 overgrid_factor = 3;
+output_image_size = ImageSize;
 nDcfIter = 15;
 deapodizeImage = true();
 cropOvergriddedImage = true();

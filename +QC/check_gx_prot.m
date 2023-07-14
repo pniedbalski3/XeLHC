@@ -1,4 +1,4 @@
-function check_gx_prot(gx_file)
+function results = check_gx_prot(gx_file)
 
 % Read in MRD data
 dset = ismrmrd.Dataset(gx_file,'dataset');
@@ -62,3 +62,6 @@ Out_Table.Properties.VariableNames = Headings;
 Test = uifigure('Name','Check Gas Exchange Protocol','HandleVisibility','on');
 mytab = uitable(Test,'Data',Out_Table,'FontSize',20,'Position',[10 10 500 330]);
 set(Test,'Position',[37 290 520 350]);
+
+%% Save relevant results
+results = {Resolution,TR,TE,GasFA,DisFA,Dw,Pts,nProj};

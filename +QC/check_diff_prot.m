@@ -1,4 +1,4 @@
-function check_diff_prot(diff_file)
+function results = check_diff_prot(diff_file)
 
 % Read in MRD data
 dset = ismrmrd.Dataset(diff_file,'dataset');
@@ -51,3 +51,6 @@ Out_Table.Properties.VariableNames = Headings;
 Test = uifigure('Name','Check Diff Protocol','HandleVisibility','on');
 mytab = uitable(Test,'Data',Out_Table,'FontSize',20,'Position',[10 10 337 162]);
 set(Test,'Position',[37 679 357 182]);
+
+%% Save results:
+results = {Resolution,nSlices,b};

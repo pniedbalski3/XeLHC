@@ -1,4 +1,4 @@
-function check_cal_prot(cal_file)
+function results = check_cal_prot(cal_file)
 
 % Read in MRD data
 dset = ismrmrd.Dataset(cal_file,'dataset');
@@ -47,3 +47,5 @@ Out_Table.Properties.VariableNames = Headings;
 Test = uifigure('Name','Check Calibration Protocol','HandleVisibility','on');
 mytab = uitable(Test,'Data',Out_Table,'FontSize',20,'Position',[10 10 500 330]);
 set(Test,'Position',[500 700 520 350]);
+
+results = {TR,TE,GasFA,DisFA,Dw,Pts,Spectra};

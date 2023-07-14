@@ -14,28 +14,30 @@ mrd_files = ReadData.get_mrd(participant_folder);
 %% Check all the protocols:
 %Ventilation
 try
-    QC.check_vent_prot(mrd_files.vent{1});
+    vent_prot = QC.check_vent_prot(mrd_files.vent{1});
 catch
     disp('Error in Checking Ventilation Protocol')
 end
 %Diffusion
 try
-    QC.check_diff_prot(mrd_files.diff{1});
+    diff_prot = QC.check_diff_prot(mrd_files.diff{1});
 catch
     disp('Error in Checking Diffusion Protocol')
 end
 %Gas Exchange
 try
-    QC.check_gx_prot(mrd_files.dixon{1});
+    gx_prot = QC.check_gx_prot(mrd_files.dixon{1});
 catch
     disp('Error in Checking Gas Exchange Protocol')
 end
 %Calibration
 try
-    QC.check_cal_prot(mrd_files.cal{1});
+    cal_prot = QC.check_cal_prot(mrd_files.cal{1});
 catch
     disp('Error in Checking Calibration Protocol')
 end
+
+
 
 %% Reconstruct Images
 %Ventilation
@@ -53,6 +55,12 @@ end
 %Gas Exchange
 try
     [I_Gas_Sharp,I_Gas_Broad,I_Dissolved,K_Gas,K_Dissolved] = Reconstruct.gx_recon(mrd_files.dixon{1});
+catch
+    disp('Error Reconstructing Gas Exchange Image');
+end
+%Gas Exchange Anatomic
+try
+    [anat,anat_k] = Reconstruct.gxanat_recon(mrd_files.ute{1});
 catch
     disp('Error Reconstructing Gas Exchange Image');
 end
@@ -81,3 +89,35 @@ try
 catch
     disp('Error calculating SNR of Gas Exchange Image');
 end
+
+%% Analyze Calibration
+try
+    [R2M,Cal_SNR] = Reconstruct.analyze_cal(mrd_files.cal{1});
+catch
+    disp('Error analyzing calibration');
+end
+%% Generate Mask 
+try
+    mask = Seg.docker_segment(abs(anat));
+catch
+    disp('Failed to generate Mask');
+end
+
+%% Separate Membrane and RBC
+try
+    [mem,rbc] = Reconstruct.dixon_sep(I_Dissolved,R2M,I_Gas_Broad,logical(mask));
+catch
+    disp('Dixon Separation of Membrane and RBC failed');
+end
+%% RBC and Membrane SNR
+try
+    SNR_Mem = QC.basic_snr(mem,'Membrane');
+    SNR_RBC = QC.basic_snr(rbc,'RBC');
+catch
+    disp('Error calculating SNR of Membrane and RBC Images');
+end
+
+
+
+
+
