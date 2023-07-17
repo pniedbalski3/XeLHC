@@ -53,4 +53,4 @@ mytab = uitable(Test,'Data',Out_Table,'FontSize',20,'Position',[10 10 337 162]);
 set(Test,'Position',[37 679 357 182]);
 
 %% Save results:
-results = {Resolution,nSlices,b};
+results = {[num2str(Resolution(1)) ' x ' num2str(Resolution(2)) ' x ' num2str(Resolution(3))],nSlices,[num2str(b)]};

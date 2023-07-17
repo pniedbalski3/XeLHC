@@ -29,4 +29,4 @@ Test = uifigure('Name','Check Vent Protocol','HandleVisibility','on');
 mytab = uitable(Test,'Data',Out_Table,'FontSize',20,'Position',[10 10 319 122]);
 set(Test,'Position',[37 895 339 142]);
 
-results = {Resolution,nSlices};
+results = {[num2str(Resolution(1)) ' x ' num2str(Resolution(2)) ' x ' num2str(Resolution(3))],nSlices};

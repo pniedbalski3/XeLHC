@@ -64,4 +64,4 @@ mytab = uitable(Test,'Data',Out_Table,'FontSize',20,'Position',[10 10 500 330]);
 set(Test,'Position',[37 290 520 350]);
 
 %% Save relevant results
-results = {Resolution,TR,TE,GasFA,DisFA,Dw,Pts,nProj};
+results = {[num2str(Resolution(1)) ' x ' num2str(Resolution(2)) ' x ' num2str(Resolution(3))],TR,TE,GasFA,DisFA,Dw,Pts,nProj};

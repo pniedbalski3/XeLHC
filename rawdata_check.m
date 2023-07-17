@@ -37,7 +37,8 @@ catch
     disp('Error in Checking Calibration Protocol')
 end
 
-
+%% Write protocol information to excel file
+QC.write_prot(cal_prot,vent_prot,diff_prot,gx_prot,participant_folder);
 
 %% Reconstruct Images
 %Ventilation
@@ -66,11 +67,13 @@ catch
 end
 
 %% Calculating SNR for Images
+SNR_Fail = 0;
 %Ventilation
 try
     SNR_Vent = QC.basic_snr(I_Vent,'Ventilation');
 catch
     disp('Error calculating SNR of Ventilation Image');
+    SNR_Fail = 1;
 end
 %Diffusion
 try
@@ -80,6 +83,7 @@ try
     end
 catch
     disp('Error calculating SNR of Diffusion Image');
+    SNR_Fail = 1;
 end
 %Gas Exchange
 try
@@ -88,6 +92,7 @@ try
     SNR_Dissolved = QC.basic_snr(I_Dissolved,'Gas Exchange - Dissolved');
 catch
     disp('Error calculating SNR of Gas Exchange Image');
+    SNR_Fail = 1;
 end
 
 %% Analyze Calibration
@@ -95,6 +100,7 @@ try
     [R2M,Cal_SNR] = Reconstruct.analyze_cal(mrd_files.cal{1});
 catch
     disp('Error analyzing calibration');
+    SNR_Fail = 1;
 end
 %% Generate Mask 
 try
@@ -115,8 +121,13 @@ try
     SNR_RBC = QC.basic_snr(rbc,'RBC');
 catch
     disp('Error calculating SNR of Membrane and RBC Images');
+    SNR_Fail = 1;
 end
-
+%% Write out SNR to excel File
+if ~SNR_Fail
+    SNR = {Cal_SNR,SNR_Vent,SNR_Diff,SNR_Gas_Sharp,SNR_Gas_Broad,SNR_Dissolved,SNR_Mem,SNR_RBC};
+    QC.write_SNR(SNR);
+end
 
 
 

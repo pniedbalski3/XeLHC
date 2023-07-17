@@ -37,6 +37,11 @@ for i = 1:length(Gas_FID)
     Gas_Traj_Array(:,:,i) = Gas_Traj{i};
 end
 
+%Kill the first 20 points to get to steady state (and avoid any first
+%projection weirdness)
+Gas_FID_Array(:,1:20) = [];
+Gas_Traj_Array(:,:,1:20) = [];
+
 gas_k = Gas_FID_Array;
 
 %% Get Dissolved Data
@@ -53,7 +58,13 @@ for i = 1:length(Dis_FID)
     Dis_FID_Array(:,i) = Dis_FID{i};
     Dis_Traj_Array(:,:,i) = Dis_Traj{i};
 end
+
+%Kill the first 20 points to get to steady state (and avoid any first
+%projection weirdness)
+Dis_FID_Array(:,1:20) = [];
+Dis_Traj_Array(:,:,1:20) = [];
 dis_k = Dis_FID_Array;
+
 
 %% Reconstruct Images
 %Reshape to column vectors
