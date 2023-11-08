@@ -11,29 +11,42 @@ close all;
 %% Find Files
 mrd_files = ReadData.get_mrd(participant_folder);
 
+QC.scans_present(mrd_files);
+
+%% Check Dates and Participants
+try
+    QC.check_name_date(mrd_files);
+catch
+    disp('Error in Checking Participant IDs and Acquisition Dates')
+end
+
 %% Check all the protocols:
 %Ventilation
 try
     vent_prot = QC.check_vent_prot(mrd_files.vent{1});
 catch
+    vent_prot = {'NA','NA'};
     disp('Error in Checking Ventilation Protocol')
 end
 %Diffusion
 try
     diff_prot = QC.check_diff_prot(mrd_files.diff{1});
 catch
+    diff_prot = {'NA','NA','NA'};
     disp('Error in Checking Diffusion Protocol')
 end
 %Gas Exchange
 try
     gx_prot = QC.check_gx_prot(mrd_files.dixon{1});
 catch
+    gx_prot = {'NA','NA','NA','NA','NA','NA','NA','NA','NA'};
     disp('Error in Checking Gas Exchange Protocol')
 end
 %Calibration
 try
     cal_prot = QC.check_cal_prot(mrd_files.cal{1});
 catch
+    cal_prot = {'NA','NA','NA','NA','NA','NA','NA'};
     disp('Error in Checking Calibration Protocol')
 end
 
@@ -55,7 +68,7 @@ catch
 end
 %Gas Exchange
 try
-    [I_Gas_Sharp,I_Gas_Broad,I_Dissolved,K_Gas,K_Dissolved] = Reconstruct.gx_recon(mrd_files.dixon{1});
+    [I_Gas_Sharp,I_Gas_Broad,I_Dissolved,K_Gas,K_Dissolved] = Reconstruct.xpdixon_recon(mrd_files.dixon{1});
 catch
     disp('Error Reconstructing Gas Exchange Image');
 end
@@ -73,7 +86,7 @@ try
     SNR_Vent = QC.basic_snr(I_Vent,'Ventilation');
 catch
     disp('Error calculating SNR of Ventilation Image');
-    SNR_Fail = 1;
+    SNR_Vent = -1;
 end
 %Diffusion
 try
@@ -83,7 +96,8 @@ try
     end
 catch
     disp('Error calculating SNR of Diffusion Image');
-    SNR_Fail = 1;
+    SNR_Diff(1) = -1;
+    SNR_Diff(2) = -1;
 end
 %Gas Exchange
 try
@@ -92,7 +106,9 @@ try
     SNR_Dissolved = QC.basic_snr(I_Dissolved,'Gas Exchange - Dissolved');
 catch
     disp('Error calculating SNR of Gas Exchange Image');
-    SNR_Fail = 1;
+    SNR_Gas_Sharp = -1;
+    SNR_Gas_Broad = -1;
+    SNR_Dissolved = -1;
 end
 
 %% Analyze Calibration
@@ -100,7 +116,7 @@ try
     [R2M,Cal_SNR] = Reconstruct.analyze_cal(mrd_files.cal{1});
 catch
     disp('Error analyzing calibration');
-    SNR_Fail = 1;
+    Cal_SNR = -1;
 end
 %% Generate Mask 
 try
@@ -121,13 +137,22 @@ try
     SNR_RBC = QC.basic_snr(rbc,'RBC');
 catch
     disp('Error calculating SNR of Membrane and RBC Images');
-    SNR_Fail = 1;
+    SNR_Mem = -1;
+    SNR_RBC = -1;
 end
 %% Write out SNR to excel File
-if ~SNR_Fail
-    SNR = {Cal_SNR,SNR_Vent,SNR_Diff,SNR_Gas_Sharp,SNR_Gas_Broad,SNR_Dissolved,SNR_Mem,SNR_RBC};
-    QC.write_SNR(SNR);
+SNR = {Cal_SNR,SNR_Vent,SNR_Diff(1),SNR_Diff(2),SNR_Gas_Sharp,SNR_Gas_Broad,SNR_Dissolved,SNR_Mem,SNR_RBC};
+QC.write_snr(SNR,participant_folder);
+
+%% Write out all figures to a QC folder
+QA_fold = fullfile(participant_folder,'QA_Output');
+if ~isfolder(QA_fold)
+    mkdir(QA_fold);
 end
+QC.save_figures(QA_fold)
+
+%% Now that we're done with QC, deidentify all data
+deid_all(participant_folder);
 
 
 

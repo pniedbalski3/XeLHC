@@ -71,7 +71,7 @@ for i = 1:nContrasts
     b(i) = meas.head.user_float(1,acqs(1));
 end
 recon_image = zeros(rec_Nx/2,rec_Ny,nContrasts,nSlices);
-K_space = zeros(enc_Nx,enc_Ny,enc_Nz,nContrasts,nSlices,nCoils);
+K_space = zeros(enc_Nx,enc_Ny*2,enc_Nz,nContrasts,nSlices,nCoils);
 for rep = 1:nReps
     for contrast = 1:nContrasts
         for slice = 1:nSlices
@@ -86,7 +86,8 @@ for rep = 1:nReps
                 kz = meas.head.idx.kspace_encode_step_2(acqs(p)) + 1;
                 K(:,ky,kz,:) = meas.data{acqs(p)};
             end
-            myim = zeros(rec_Nx/2,rec_Ny,rec_Nz,nCoils);
+            %Zero Pad along the y direction
+            myim = zeros(rec_Nx,rec_Ny,rec_Nz,nCoils);
 
             col_center = hdr.encoding.encodingLimits.kspace_encoding_step_0.center;
             phs_center = hdr.encoding.encodingLimits.kspace_encoding_step_1.center;
@@ -95,7 +96,7 @@ for rep = 1:nReps
             ceny = floor(rec_Ny/2);
 
             myim((cenx-col_center+1):(cenx-col_center+enc_Nx),(ceny-phs_center+1):(ceny-phs_center+enc_Ny),:,:) = K;
-            K_space(:,:,:,contrast,slice,:) = K;
+            K_space(:,(ceny-phs_center+1):(ceny-phs_center+enc_Ny),:,contrast,slice,:) = K;
             %myim((ceny-phs_center):(ceny-phs_center+enc_Ny-1),(cenx-col_center):(cenx-col_center+enc_Nx-1),:,:) = K';
 
             myim = fftshift(ifft(fftshift(myim,1),[],1),1);

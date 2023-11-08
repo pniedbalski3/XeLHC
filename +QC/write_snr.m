@@ -13,13 +13,10 @@ mymatch = [];
 
 try 
     load(matfile,'AllSNR');
-    mymatch = strcmpi(AllSNR.Participant,Participant);
+    mymatch = find(strcmpi(AllSNR.Participant,Participant));
 catch
     headers = {'Participant',...
-        'Cal TR (15)','Cal TE (0.45)','Gas FA (20)','Dis FA (20)','Dwell (39)','Points (256)','Number Spectra (520)',...
-        'Vent Res (4 4 15)','Vent Slices (>=12)',...
-        'Diff Res (6 6 25)','Diff Slices (<9)','Diff bval (0 12)',...
-        'Gx Res (6.25 6.25 6.25)','TR (TBD)','TE (0.45-0.5)','Gas FA (0.5)','Dis FA (TBD)','Dwell (20)','Points (64)','Projections (TBD)'};
+        'Calibration SNR','Ventilation SNR','Diffusion b = 0 SNR','Diffusion b = 12 SNR','Gas Exchange Gas Sharp Kernel SNR','Gas Exchange Gas Broad Kernel SNR','Gas Exchange Dissolved SNR','Membrane SNR','RBC SNR'};
     AllSNR = cell2table(cell(0,size(headers,2)));
     AllSNR.Properties.VariableNames = headers;
 end
