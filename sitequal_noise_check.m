@@ -77,3 +77,6 @@ try
 catch
     disp('Error Checking Noise of Gas Exchange Image');
 end
+
+%% Save Figures
+QC.save_figures(participant_folder);

@@ -3,7 +3,7 @@ function deid_mrd(filename)
 
 [mypath,myfile,ext] = fileparts(filename);
 
-deid_file = fullfile(mypath,[myfile '_deid' ext ]);
+deid_file = fullfile(mypath,['DeID_' myfile ext ]);
 
 copyfile(filename,deid_file);
 

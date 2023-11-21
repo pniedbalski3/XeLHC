@@ -27,29 +27,29 @@ meas  = D.select(firstScan:D.getNumber);
 clear D;
 
 %% Get Data
-Gas_ind1 = find(meas.head.idx.contrast == 0 & meas.head.measurement_uid == 0 & meas.head.idx.set == 1);
+Gas_ind1 = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 0 & meas.head.idx.set == 1);
 [fid(:,:,1),traj(:,:,:,1)] = ReadData.get_xpdixon_mrd(meas,Gas_ind1);
 
-Gas_ind2 = find(meas.head.idx.contrast == 0 & meas.head.measurement_uid == 0 & meas.head.idx.set == 2);
+Gas_ind2 = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 0 & meas.head.idx.set == 2);
 [fid(:,:,2),traj(:,:,:,2)] = ReadData.get_xpdixon_mrd(meas,Gas_ind2);
 
-Dis_ind1 = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 0 & meas.head.idx.set == 1);
+Dis_ind1 = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 0 & meas.head.idx.set == 1);
 [fid(:,:,3),traj(:,:,:,3)] = ReadData.get_xpdixon_mrd(meas,Dis_ind1);
 
-Dis_ind2 = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 0 & meas.head.idx.set == 2);
+Dis_ind2 = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 0 & meas.head.idx.set == 2);
 [fid(:,:,4),traj(:,:,:,4)] = ReadData.get_xpdixon_mrd(meas,Dis_ind2);
 
-Dis_ind3 = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 0 & meas.head.idx.set == 3);
+Dis_ind3 = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 0 & meas.head.idx.set == 3);
 [fid(:,:,5),traj(:,:,:,5)] = ReadData.get_xpdixon_mrd(meas,Dis_ind3);
 
-DisCal = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 1);
+DisCal = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 1);
 DisCal_Data =meas.data(DisCal);
 discal = zeros(length(DisCal_Data{1}),length(DisCal_Data));
 for i = 1:length(DisCal_Data)
     discal(:,i) = DisCal_Data{i};
 end
 
-FACal = find(meas.head.idx.contrast == 0 & meas.head.measurement_uid == 2);
+FACal = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 2);
 FACal_Data =meas.data(FACal);
 facal = zeros(length(FACal_Data{1}),length(FACal_Data));
 for i = 1:length(FACal_Data)
@@ -75,7 +75,7 @@ end
 % dbclim = [0 max(max(max(abs(BroadIms(:,:,:,3)))))];
 % gsclim = [0 max(max(max(abs(SharpIms(:,:,:,1)))))];
 % gbclim = [0 max(max(max(abs(BroadIms(:,:,:,1)))))];
-% 
+% % 
 % for i = 1:5
 %     figure('Name',['Image_' num2str(i) '_sharp_recon']);
 %     montage(abs(squeeze(SharpIms(:,:,:,i))))
@@ -100,8 +100,10 @@ Dw = double(meas.head.sample_time_us(DisCal(1)));
 
 t = (0:(length(discal_ave)-1))*Dw;
 
-GasFreq = hdr.encoding.trajectoryDescription.userParameterDouble(3).value;
-DisFreq = hdr.encoding.trajectoryDescription.userParameterDouble(4).value;
+GasFreq = hdr.userParameters.userParameterLong(1).value;
+DisFreq = hdr.userParameters.userParameterLong(2).value;
+
+DisFreq = DisFreq+GasFreq;
 
 chem_shift = (DisFreq-GasFreq)/GasFreq * 1e6;
 
@@ -151,8 +153,10 @@ Dw = meas.head.sample_time_us(1)*1e-6;
 t_arm = double(0:Dw:((size(fid,1)-1)*Dw));
 
 %t_thresh = 0.003;  % use the data collected after 3ms for correction
-GasFreq = hdr.encoding.trajectoryDescription.userParameterDouble(3).value;
-DisFreq = hdr.encoding.trajectoryDescription.userParameterDouble(4).value;
+GasFreq = hdr.userParameters.userParameterLong(1).value;
+DisFreq = hdr.userParameters.userParameterLong(2).value;
+
+DisFreq = GasFreq+DisFreq;
 
 demod_freq = GasFreq-DisFreq;  % acquisistion frequency difference between gas and dissolved
 

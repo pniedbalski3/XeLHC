@@ -1,4 +1,4 @@
-function rawdata_check(participant_folder)
+function R2M = rawdata_check(participant_folder)
 
 %% Option to have User select folder
 if nargin < 1
@@ -68,7 +68,7 @@ catch
 end
 %Gas Exchange
 try
-    [I_Gas_Sharp,I_Gas_Broad,I_Dissolved,K_Gas,K_Dissolved] = Reconstruct.xpdixon_recon(mrd_files.dixon{1});
+    [I_Gas_Sharp,I_Gas_Broad,I_Dissolved,K_Gas,K_Dissolved] = Reconstruct.xpdixon_recon(mrd_files.dixon{1},3.5);
 catch
     disp('Error Reconstructing Gas Exchange Image');
 end

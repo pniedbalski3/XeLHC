@@ -13,15 +13,15 @@ rec_FOVy = hdr.encoding.reconSpace.fieldOfView_mm.y;
 rec_FOVz = hdr.encoding.reconSpace.fieldOfView_mm.z;
 
 TR = hdr.sequenceParameters.TR/1000;
-GasFA = hdr.sequenceParameters.flipAngle_deg(2); %PJN will need to check GE data to make sure gas/dissolved are properly flagged
-DisFA = hdr.sequenceParameters.flipAngle_deg(1);
+GasFA = hdr.sequenceParameters.flipAngle_deg(1); %PJN will need to check GE data to make sure gas/dissolved are properly flagged
+DisFA = hdr.sequenceParameters.flipAngle_deg(2);
 TE = hdr.sequenceParameters.TE(1);
-Dw = hdr.encoding.trajectoryDescription.userParameterDouble(1).value;
+%Dw = hdr.encoding.trajectoryDescription.userParameterDouble(1).value;
 
-GasFreq = hdr.encoding.trajectoryDescription.userParameterDouble(3).value;
-DisFreq = hdr.encoding.trajectoryDescription.userParameterDouble(4).value;
+GasFreq = hdr.userParameters.userParameterLong(1).value;
+DisFreq = hdr.userParameters.userParameterLong(2).value;
 
-chem_shift = (DisFreq-GasFreq)/GasFreq * 1e6;
+chem_shift = (DisFreq)/GasFreq * 1e6;
 
 Resolution = [rec_FOVx/rec_Nx rec_FOVy/rec_Ny rec_FOVz/rec_Nz];
 
@@ -45,8 +45,8 @@ clear D;
 %% PJN - probably will need to adjust this once I have the multi-echo code. Will also need to test with GE data.
 nacq = length(meas.data);
 
-Dis_ind1 = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 0 & meas.head.idx.set == 1);
-
+Dis_ind1 = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 0 & meas.head.idx.set == 1);
+Dw = meas.head.sample_time_us(Dis_ind1(1));
 nProj = length(Dis_ind1);
 Pts = length(meas.data{1});
 

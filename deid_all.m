@@ -17,7 +17,7 @@ for i = 1:length(mrd_files)
         deid_mrd(tmp_name);
         %% move deidentified data all to the same place
         [mypath,myfile,myext] = fileparts(tmp_name);
-        deidfile = fullfile(mypath,[myfile '_deid' myext]);
+        deidfile = fullfile(mypath,['DeID_' myfile myext]);
         movefile(deidfile,newdir);
     catch
     end

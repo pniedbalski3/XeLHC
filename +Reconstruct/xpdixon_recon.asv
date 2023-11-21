@@ -1,5 +1,9 @@
-function xpdixon_recon(filename)
-
+function [gas_hires,gas_lores,dis,gas_k,dis_k] = xpdixon_recon(filename,delay_cor)
+%%
+if nargin < 2
+    delay_cor = 0;
+end
+%%
 dset = ismrmrd.Dataset(filename,'dataset');
 hdr = ismrmrd.xml.deserialize(dset.readxml);
 
@@ -23,29 +27,29 @@ meas  = D.select(firstScan:D.getNumber);
 clear D;
 
 %% Get Data
-Gas_ind1 = find(meas.head.idx.contrast == 0 & meas.head.measurement_uid == 0 & meas.head.idx.set == 1);
+Gas_ind1 = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 0 & meas.head.idx.set == 1);
 [fid(:,:,1),traj(:,:,:,1)] = ReadData.get_xpdixon_mrd(meas,Gas_ind1);
 
-Gas_ind2 = find(meas.head.idx.contrast == 0 & meas.head.measurement_uid == 0 & meas.head.idx.set == 2);
+Gas_ind2 = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 0 & meas.head.idx.set == 2);
 [fid(:,:,2),traj(:,:,:,2)] = ReadData.get_xpdixon_mrd(meas,Gas_ind2);
 
-Dis_ind1 = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 0 & meas.head.idx.set == 1);
+Dis_ind1 = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 0 & meas.head.idx.set == 1);
 [fid(:,:,3),traj(:,:,:,3)] = ReadData.get_xpdixon_mrd(meas,Dis_ind1);
 
-Dis_ind2 = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 0 & meas.head.idx.set == 2);
+Dis_ind2 = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 0 & meas.head.idx.set == 2);
 [fid(:,:,4),traj(:,:,:,4)] = ReadData.get_xpdixon_mrd(meas,Dis_ind2);
 
-Dis_ind3 = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 0 & meas.head.idx.set == 3);
+Dis_ind3 = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 0 & meas.head.idx.set == 3);
 [fid(:,:,5),traj(:,:,:,5)] = ReadData.get_xpdixon_mrd(meas,Dis_ind3);
 
-DisCal = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 1);
+DisCal = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 1);
 DisCal_Data =meas.data(DisCal);
 discal = zeros(length(DisCal_Data{1}),length(DisCal_Data));
 for i = 1:length(DisCal_Data)
     discal(:,i) = DisCal_Data{i};
 end
 
-FACal = find(meas.head.idx.contrast == 0 & meas.head.measurement_uid == 2);
+FACal = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 2);
 FACal_Data =meas.data(FACal);
 facal = zeros(length(FACal_Data{1}),length(FACal_Data));
 for i = 1:length(FACal_Data)
@@ -58,6 +62,7 @@ BroadIms = zeros([ImSize 5]);
 
 for i = 1:size(fid,3)
     tmpfid = reshape(fid(:,:,i),1,[])';
+    traj(:,:,:,i) = Reconstruct.traj_delay_correction(traj(:,:,:,i),delay_cor);
     tmptraj = [reshape(traj(1,:,:,i),1,[])' reshape(traj(2,:,:,i),1,[])' reshape(traj(3,:,:,i),1,[])'];
     
     SharpIms(:,:,:,i) = Reconstruct.sharp_kern_recon(ImSize,tmpfid,tmptraj);
@@ -66,28 +71,28 @@ end
 
 
 %% TODO: Add Post-dissolved spectra analysis, Flip Cal analysis
-dsclim = [0 max(max(max(abs(SharpIms(:,:,:,3)))))];
-dbclim = [0 max(max(max(abs(BroadIms(:,:,:,3)))))];
-gsclim = [0 max(max(max(abs(SharpIms(:,:,:,1)))))];
-gbclim = [0 max(max(max(abs(BroadIms(:,:,:,1)))))];
-
-for i = 1:5
-    figure('Name',['Image_' num2str(i) '_sharp_recon']);
-    montage(abs(squeeze(SharpIms(:,:,:,i))))
-    if i<3
-        clim(gsclim);
-    else
-        clim(dsclim);
-    end
-
-    figure('Name',['Image_' num2str(i) '_broad_recon']);
-    montage(abs(squeeze(BroadIms(:,:,:,i))))
-    if i<3
-        clim(gbclim);
-    else
-        clim(dbclim);
-    end
-end
+% dsclim = [0 max(max(max(abs(SharpIms(:,:,:,3)))))];
+% dbclim = [0 max(max(max(abs(BroadIms(:,:,:,3)))))];
+% gsclim = [0 max(max(max(abs(SharpIms(:,:,:,1)))))];
+% gbclim = [0 max(max(max(abs(BroadIms(:,:,:,1)))))];
+% % 
+% for i = 1:5
+%     figure('Name',['Image_' num2str(i) '_sharp_recon']);
+%     montage(abs(squeeze(SharpIms(:,:,:,i))))
+%     if i<3
+%         clim(gsclim);
+%     else
+%         clim(dsclim);
+%     end
+% 
+%     figure('Name',['Image_' num2str(i) '_broad_recon']);
+%     montage(abs(squeeze(BroadIms(:,:,:,i))))
+%     if i<3
+%         clim(gbclim);
+%     else
+%         clim(dbclim);
+%     end
+% end
 
 %% Dissolved spectra analysis
 discal_ave = double(mean(discal,2));
@@ -95,8 +100,10 @@ Dw = double(meas.head.sample_time_us(DisCal(1)));
 
 t = (0:(length(discal_ave)-1))*Dw;
 
-GasFreq = hdr.encoding.trajectoryDescription.userParameterDouble(3).value;
-DisFreq = hdr.encoding.trajectoryDescription.userParameterDouble(4).value;
+GasFreq = hdr.userParameters.userParameterLong(1).value;
+DisFreq = hdr.userParameters.userParameterLong(2).value;
+
+DisFreq = DisFreq+GasFreq;
 
 chem_shift = (DisFreq-GasFreq)/GasFreq * 1e6;
 
@@ -114,13 +121,13 @@ Memspec = disfitObj.area(2);
 
 R2M = RBCspec/Memspec;
 
-figure('Name','Calibration Check');
-plot(disfitObj.f,abs(disfitObj.spectralDomainSignal),'k');
-hold on
-plot(disfitObj.f,abs(sum(disfitFinal,2)),'Color',[0 0 1 0.33],'LineWidth',3)
-xlabel('Frequency (Hz)')
-ylabel('NMR Signal (a.u.)')
-title(['RBC/Membrane = ' num2str(R2M,3)]);
+% figure('Name','Calibration Check');
+% plot(disfitObj.f,abs(disfitObj.spectralDomainSignal),'k');
+% hold on
+% plot(disfitObj.f,abs(sum(disfitFinal,2)),'Color',[0 0 1 0.33],'LineWidth',3)
+% xlabel('Frequency (Hz)')
+% ylabel('NMR Signal (a.u.)')
+% title(['RBC/Membrane = ' num2str(R2M,3)]);
 
 %% Gas Flip Cal Analysis
 Amps = max(abs(facal));
@@ -143,11 +150,13 @@ flip_err=param_err(2)*180/pi;
 %Code adapted from Andrew Hahn/Sean Fain
 
 Dw = meas.head.sample_time_us(1)*1e-6;
-t_arm = 0:Dw:((size(fid,1)-1)*Dw);
+t_arm = double(0:Dw:((size(fid,1)-1)*Dw));
 
 %t_thresh = 0.003;  % use the data collected after 3ms for correction
-GasFreq = hdr.encoding.trajectoryDescription.userParameterDouble(3).value;
-DisFreq = hdr.encoding.trajectoryDescription.userParameterDouble(4).value;
+GasFreq = hdr.userParameters.userParameterLong(1).value;
+DisFreq = hdr.userParameters.userParameterLong(2).value;
+
+DisFreq = GasFreq+DisFreq;
 
 demod_freq = GasFreq-DisFreq;  % acquisistion frequency difference between gas and dissolved
 
@@ -156,11 +165,11 @@ demod_freq = GasFreq-DisFreq;  % acquisistion frequency difference between gas a
 % gas_views = d(gpv,tC >= t_thresh);  % gas phase data valid for fitting
 % dissolved_views = d(dpv,tC >= t_thresh);    % dissolved phase data valid for fitting
 
-t_gas1 = hdr.sequenceParameters.TE(1) + t_arm';
-t_gas2 = hdr.sequenceParameters.TE(2) + t_arm';
-t_dis1 = hdr.sequenceParameters.TE(3) + t_arm';
-t_dis2 = hdr.sequenceParameters.TE(4) + t_arm';
-t_dis3 = hdr.sequenceParameters.TE(5) + t_arm';
+t_gas1 = hdr.sequenceParameters.TE(1)*1e-3 + t_arm';
+t_gas2 = hdr.sequenceParameters.TE(2)*1e-3 + t_arm';
+t_dis1 = hdr.sequenceParameters.TE(3)*1e-3 + t_arm';
+t_dis2 = hdr.sequenceParameters.TE(4)*1e-3 + t_arm';
+t_dis3 = hdr.sequenceParameters.TE(5)*1e-3 + t_arm';
 
 % nonlinear optimization options
 fitOptions = optimoptions('lsqcurvefit');
@@ -180,6 +189,26 @@ beta_fit = lsqcurvefit(fun,beta0,double(fid(:,:,2)), double(fid(:,:,5)),[],[],fi
 
 % Objective funcion for all data, used for applying the correction
 fun = @(beta,X) X.*exp(2i.*pi.*(beta - repmat(t_dis1, [1 size(fid,2)]).*(demod_freq)));
-fid_corrected = fid(:,:,3) - fun(beta_fit,d(gpv,:));   % The variable d now contains contamination corrected data
+disfid_corrected = fid(:,:,3) - fun(beta_fit,fid(:,:,1));   % The variable d now contains contamination corrected data
+
+%% Reconstruct Corrected:
+tmpfid = reshape(disfid_corrected,1,[])';
+tmptraj = [reshape(traj(1,:,:,1),1,[])' reshape(traj(2,:,:,1),1,[])' reshape(traj(3,:,:,1),1,[])'];
+
+SharpDis_Cor = Reconstruct.sharp_kern_recon(ImSize,tmpfid,tmptraj);
+BroadDis_Cor = Reconstruct.broad_kern_recon(ImSize,tmpfid,tmptraj);
+
+%% See how this changes
+% SNR_Dis = QC.basic_snr(squeeze(BroadIms(:,:,:,3)),'Uncorrected Dissolved');
+% SNR_DisCor = QC.basic_snr(squeeze(BroadDis_Cor),'Corrected Dissolved');
 
 
+%%
+gas_hires = SharpIms(:,:,:,1);
+gas_lores = BroadIms(:,:,:,1);
+dis = BroadIms(:,:,:,3);
+gas_k = fid(:,:,1);
+dis_k = fid(:,:,3);
+
+Gas_FA = hdr.sequenceParameters.flipAngle_deg(1);
+Dis_FA = hdr.sequenceParameters.flipAngle_deg(2);
