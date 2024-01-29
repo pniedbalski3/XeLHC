@@ -31,7 +31,7 @@ set(SNR_Fig,'color','white','Units','inches','Position',[0.25 0.25  8 8])
 TwoBinMap =  [1 0 0; 0 1 0];
 ImMax = max(Ims_tiled(:));
 Seg = Mask_tiled*2 + Noise_Mask;
-Tools.imoverlay(squeeze(Ims_tiled),squeeze(Seg),[1,2],[0,0.99*ImMax],TwoBinMap,0.2,gca);
+ImTools.imoverlay(squeeze(Ims_tiled),squeeze(Seg),[1,2],[0,0.99*ImMax],TwoBinMap,0.2,gca);
 colormap(TwoBinMap);
 
 snr_label = ['SNR = ' num2str(SNR,3)];
