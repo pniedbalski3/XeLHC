@@ -71,28 +71,28 @@ end
 
 
 %% TODO: Add Post-dissolved spectra analysis, Flip Cal analysis
-% dsclim = [0 max(max(max(abs(SharpIms(:,:,:,3)))))];
-% dbclim = [0 max(max(max(abs(BroadIms(:,:,:,3)))))];
-% gsclim = [0 max(max(max(abs(SharpIms(:,:,:,1)))))];
-% gbclim = [0 max(max(max(abs(BroadIms(:,:,:,1)))))];
+dsclim = [0 max(max(max(abs(SharpIms(:,:,:,3)))))];
+dbclim = [0 max(max(max(abs(BroadIms(:,:,:,3)))))];
+gsclim = [0 max(max(max(abs(SharpIms(:,:,:,1)))))];
+gbclim = [0 max(max(max(abs(BroadIms(:,:,:,1)))))];
 % % 
-% for i = 1:5
-%     figure('Name',['Image_' num2str(i) '_sharp_recon']);
-%     montage(abs(squeeze(SharpIms(:,:,:,i))))
-%     if i<3
-%         clim(gsclim);
-%     else
-%         clim(dsclim);
-%     end
-% 
-%     figure('Name',['Image_' num2str(i) '_broad_recon']);
-%     montage(abs(squeeze(BroadIms(:,:,:,i))))
-%     if i<3
-%         clim(gbclim);
-%     else
-%         clim(dbclim);
-%     end
-% end
+for i = 1:5
+    figure('Name',['Image_' num2str(i) '_sharp_recon']);
+    montage(abs(squeeze(SharpIms(:,:,:,i))))
+    if i<3
+        clim(gsclim);
+    else
+        clim(dsclim);
+    end
+
+    figure('Name',['Image_' num2str(i) '_broad_recon']);
+    montage(abs(squeeze(BroadIms(:,:,:,i))))
+    if i<3
+        clim(gbclim);
+    else
+        clim(dbclim);
+    end
+end
 
 %% Dissolved spectra analysis
 discal_ave = double(mean(discal,2));
@@ -121,13 +121,13 @@ Memspec = disfitObj.area(2);
 
 R2M = RBCspec/Memspec;
 
-% figure('Name','Calibration Check');
-% plot(disfitObj.f,abs(disfitObj.spectralDomainSignal),'k');
-% hold on
-% plot(disfitObj.f,abs(sum(disfitFinal,2)),'Color',[0 0 1 0.33],'LineWidth',3)
-% xlabel('Frequency (Hz)')
-% ylabel('NMR Signal (a.u.)')
-% title(['RBC/Membrane = ' num2str(R2M,3)]);
+figure('Name','Calibration Check');
+plot(disfitObj.f,abs(disfitObj.spectralDomainSignal),'k');
+hold on
+plot(disfitObj.f,abs(sum(disfitFinal,2)),'Color',[0 0 1 0.33],'LineWidth',3)
+xlabel('Frequency (Hz)')
+ylabel('NMR Signal (a.u.)')
+title(['RBC/Membrane = ' num2str(R2M,3)]);
 
 %% Gas Flip Cal Analysis
 Amps = max(abs(facal));

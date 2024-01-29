@@ -30,8 +30,8 @@ cal_indx = find(contains(mrd_files.cal,'DeID'));
 vent_indx = find(contains(mrd_files.vent,'DeID'));
 ventanat_indx = find(contains(mrd_files.ventanat,'DeID'));
 diff_indx = find(contains(mrd_files.diff,'DeID'));
-dixon_indx = find(contains(mrd_files.dixon,'DeID'));
-ute_indx = find(contains(mrd_files.ute,'DeID'));
+dixon_indx = find(contains(mrd_files.dixon,'DeID.h5'));
+ute_indx = find(contains(mrd_files.ute,'DeID.h5'));
 
 mrd_files.cal(cal_indx) = []; 
 mrd_files.vent(vent_indx) = [];

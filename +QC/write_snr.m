@@ -16,7 +16,7 @@ try
     mymatch = find(strcmpi(AllSNR.Participant,Participant));
 catch
     headers = {'Participant',...
-        'Calibration SNR','Ventilation SNR','Diffusion b = 0 SNR','Diffusion b = 12 SNR','Gas Exchange Gas Sharp Kernel SNR','Gas Exchange Gas Broad Kernel SNR','Gas Exchange Dissolved SNR','Membrane SNR','RBC SNR'};
+        'Calibration SNR_1','Calibration SNR_2','Calibration SNR_3','Ventilation SNR','Diffusion b = 0 SNR','Diffusion b = 12 SNR','Gas Exchange Gas Sharp Kernel SNR','Gas Exchange Gas Broad Kernel SNR','Gas Exchange Dissolved SNR','Membrane SNR','RBC SNR'};
     AllSNR = cell2table(cell(0,size(headers,2)));
     AllSNR.Properties.VariableNames = headers;
 end
