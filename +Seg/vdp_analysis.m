@@ -26,7 +26,7 @@ if ~isfile(maskpath)
 end
 
 %% Now, I should be able to load these files into ITK-snap for checking:
-ITKSNAP_Path = '"C:\Program Files\ITK-SNAP 3.8\bin\ITK-SNAP.exe"';
+ITKSNAP_Path = '"C:\Program Files\ITK-SNAP 4.0\bin\ITK-SNAP.exe"';
 
 mycommand = [ITKSNAP_Path ' -g "' vent_full_path '" -o "' anat_full_path '" -s "' maskpath '"'];
 system(mycommand);
