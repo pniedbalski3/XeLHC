@@ -47,7 +47,7 @@ tilevent = imtile(vent2);
 tileseg = imtile(imseg2);
 
 CMap = [1 0 0;1 0.7143 0; 0 1 0;0 0 1];
-figure('Name','Ventilition Defect Analysis')
+figure('Name','Ventilition Defect Analysis','Position',[515 62 855 878])
 Tools.imoverlay(tilevent,tileseg,[1 4],[0,prctile(vent(mask==1),99)],CMap,0.5,gca);
 colormap(CMap);
 

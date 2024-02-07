@@ -16,6 +16,9 @@ VDP = Seg.vdp_analysis(bids_path);
 ADC = diff_analysis(participant_folder);
 
 %% Perform Calibration Analysis
-cal_analysis(participant_folder);
+Osc_Amp = cal_analysis(participant_folder);
+%%
+msgbox([{['ADC = ' num2str(ADC,3)]};{['VDP = ' num2str(VDP,3)]};{['RBC/Membrane = ' num2str(R2M,3)]}]);
 
-msgbox(['ADC = ' num2str(ADC,3);'VDP = ' num2str(VDP,3);'RBC/Membrane = ' num2str(R2M,2)]);
+%%
+QC.write_basic_analysis(VDP,ADC,R2M,Osc_Amp,participant_folder);

@@ -68,7 +68,22 @@ catch
 end
 %Gas Exchange
 try
-    [I_Gas_Sharp,I_Gas_Broad,I_Dissolved,K_Gas,K_Dissolved] = Reconstruct.xpdixon_recon(mrd_files.dixon{1},0);
+    delayright = 0;
+    delayguess = 0;
+    while delayright ==0
+        [I_Gas_Sharp,I_Gas_Broad,I_Dissolved,K_Gas,K_Dissolved] = Reconstruct.xpdixon_recon(mrd_files.dixon{1},delayguess);
+        prompt = {'Enter Delay (-1 means delay is correct as is)'};
+        dlgtitle = 'Trajectory Delay Correction';
+        fieldsize = [1 45];
+        definput = {'-1'};
+        answer = inputdlg(prompt,dlgtitle,fieldsize,definput);
+        answer = str2num(answer{1});
+        if answer == -1
+            delayright = 1;
+        else
+            delayguess = answer;
+        end
+    end
 catch
     disp('Error Reconstructing Gas Exchange Image');
 end

@@ -1,9 +1,16 @@
-function cal_analysis(cal_file)
+function Osc_Amp = cal_analysis(cal_file)
 
 [mypath,myname,myext] = fileparts(cal_file);
 
+
 if isempty(myext)
-    files = struct2cell(dir(cal_file));
+    write_path = cal_file;
+    if ispc
+        files = struct2cell(dir(fullfile(cal_file,'**\*')));
+    else
+        files = struct2cell(dir(fullfile(cal_file,'**/*')));
+    end
+    % files = struct2cell(dir(cal_file));
     names = files(1,:);
     myfile = names{find(contains(names,'_calibration.h5'),1,'last')};
     cal_file = fullfile(files(2,find(contains(names,'_calibration.h5'),1,'last')),myfile);
@@ -11,7 +18,10 @@ if isempty(myext)
     myext = '.h5';
 
     [mypath,~,~] = fileparts(cal_file);
+else
+    write_path = my_path;
 end
+
 
 
 if strcmp(myext,'.dat')
@@ -110,7 +120,7 @@ parfor j = 1:size(disData,2)
     Mem_Shift(j) = disfitObj.freq(2);
     RBC_Shift(j) = disfitObj.freq(1);
 end
-save(fullfile(mypath,'Spectra_fittings.mat'),'Gas','RBC','Mem','Mem_Shift','RBC_Shift');
+save(fullfile(write_path,'Spectra_fittings.mat'),'Gas','RBC','Mem','Mem_Shift','RBC_Shift');
 
 xdata = 0:0.015:(0.015*(size(RBC,1)-1));
 myfit = fit(xdata',smooth(RBC),'exp2');
@@ -131,11 +141,11 @@ RBCsmooth = smooth(det_RBC);
 [min2_valAll,min2locs] = findpeaks(-RBCsmooth,xdata,'MinPeakDistance',0.7);
 min2_valAll = -min2_valAll;
 
-Amp_sinfit(i) = 2*sinfit.a1*100;
-Phase_sinfit(i) = sinfit.c1;
-Rate_sinfit(i) = sinfit.b1/2/pi*60;
+Amp_sinfit = 2*sinfit.a1*100;
+Phase_sinfit = sinfit.c1;
+Rate_sinfit = sinfit.b1/2/pi*60;
 
-Amp_diffmeans(i) = (mean(max2_valAll) - mean(min2_valAll))*100;
+Amp_diffmeans = (mean(max2_valAll) - mean(min2_valAll))*100;
 if length(max2_valAll) > length(min2_valAll)
 max2_valAll = max2_valAll(1:length(min2_valAll));
 max2locs = max2locs(1:length(min2_valAll));
@@ -143,9 +153,9 @@ elseif length(max2_valAll) < length(min2_valAll)
 min2_valAll = min2_valAll(1:length(max2_valAll));
 min2locs = min2locs(1:length(max2_valAll));
 end
-Amp_meandiffs(i) = mean(max2_valAll - min2_valAll)*100;
+Amp_meandiffs = mean(max2_valAll - min2_valAll)*100;
 
-Amp_fitdiffmeans(i) = (mean(max_valAll) - mean(min_valAll))*100;
+Amp_fitdiffmeans = (mean(max_valAll) - mean(min_valAll))*100;
 if length(max_valAll) > length(min_valAll)
 max_valAll = max_valAll(1:length(min_valAll));
 maxlocs = maxlocs(1:length(min_valAll));
@@ -153,37 +163,23 @@ elseif length(max_valAll) < length(min_valAll)
 min_valAll = min_valAll(1:length(max_valAll));
 minlocs = minlocs(1:length(max_valAll));
 end
-Amp_fitmeandiffs(i) = mean(max_valAll - min_valAll)*100;
+Amp_fitmeandiffs = mean(max_valAll - min_valAll)*100;
 
 myfig = figure('Name','Spectra Fitting');
-tiledlayout(2,5)
+tiledlayout(1,2)
 %figure('Name','How Much Data');
 %plot(abs(disData(1,:)));
 nexttile;
 plot(xdata,det_RBC,xdata,sinfit(xdata));
-title(['Osc Amp = ',num2str(Amp_sinfit(i),3)]);
-nexttile;
-plot(xdata,det_RBC,xdata,RBCsmooth); hold on
-plot(max2locs,max2_valAll,'ok','MarkerFaceColor','k')
-plot(min2locs,min2_valAll,'ok','MarkerFaceColor','k')
-title(['Diff Means Osc Amp = ',num2str(Amp_diffmeans(i),3)]);
-nexttile;
-plot(xdata,det_RBC,xdata,RBCsmooth); hold on
-plot(max2locs,max2_valAll,'ok','MarkerFaceColor','k')
-plot(min2locs,min2_valAll,'ok','MarkerFaceColor','k')
-title(['Mean Diffs Osc Amp = ',num2str(Amp_meandiffs(i),3)]);
+title(['Osc Amp = ',num2str(Amp_sinfit,3)]);
 nexttile;
 plot(xdata,det_RBC,xdata,RBCfitdata); hold on
 plot(maxlocs,max_valAll,'ok','MarkerFaceColor','k')
 plot(minlocs,min_valAll,'ok','MarkerFaceColor','k')
-title(['Fit Diff Means Osc Amp = ',num2str(Amp_fitdiffmeans(i),3)]);
-nexttile;
-plot(xdata,det_RBC,xdata,RBCfitdata); hold on
-plot(maxlocs,max_valAll,'ok','MarkerFaceColor','k')
-plot(minlocs,min_valAll,'ok','MarkerFaceColor','k')
-title(['Fit Mean Diffs Osc Amp = ',num2str(Amp_fitmeandiffs(i),3)]);
+title(['Fit Diff Means Osc Amp = ',num2str(Amp_fitdiffmeans,3)]);
 
 
+Osc_Amp = Amp_fitdiffmeans;
 % sinfit2 = fit(xdata',smooth(R2M),'sin1');
 % R2MAmp_sinfit(i) = 2*sinfit2.a1;
 % subplot(1,2,2)
@@ -192,4 +188,4 @@ title(['Fit Mean Diffs Osc Amp = ',num2str(Amp_fitmeandiffs(i),3)]);
 
 set(gcf,'Position',[285 164 1368 754]);
 
-saveas(myfig,fullfile(mypath,'Wiggle_Spectra_Figs_QC.png'))
+saveas(myfig,fullfile(write_path,'Wiggle_Spectra_Figs_QC.png'))
