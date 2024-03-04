@@ -14,9 +14,15 @@ filenames = All_files(1,:);
 
 cal_indx = find(contains(filenames,'calibration.h5'));
 vent_indx = find(contains(filenames,'vent.h5'));
+if isempty(vent_indx)
+    vent_indx = find(contains(filenames,'gre.h5'));
+end
 ventanat_indx = find(contains(filenames,'ventanat.h5'));
 diff_indx = find(contains(filenames,'diff.h5'));
 dixon_indx = find(contains(filenames,'dixon.h5'));
+if isempty(dixon_indx)
+    dixon_indx = find(contains(filenames,'dissolved.h5'));
+end
 ute_indx = find(contains(filenames,'proton.h5'));
 
 mrd_files.cal = fullfile(All_files(2,cal_indx),All_files(1,cal_indx));

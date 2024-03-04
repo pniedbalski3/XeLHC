@@ -46,6 +46,9 @@ clear D;
 nacq = length(meas.data);
 
 Dis_ind1 = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 0 & meas.head.idx.set == 1);
+if isempty(Dis_ind1)
+    Dis_ind1 = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 0);
+end
 Dw = meas.head.sample_time_us(Dis_ind1(1));
 nProj = length(Dis_ind1);
 Pts = length(meas.data{1});

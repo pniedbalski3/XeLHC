@@ -60,22 +60,36 @@ end
 %% Noise Checks - I don't really want to do this with every scan.
 %Ventilation
 try
-    QC.check_noise(I_Vent,K_Vent,'Ventilation');
+    QC.check_noise(I_Vent,K_Vent,'Ventilation-from Raw');
 catch
     disp('Error Checking Noise of Ventilation Image');
 end
 %Diffusion
 try
-    QC.check_noise(I_Diff,K_Diff,'Diffusion');
+    QC.check_noise(I_Diff,K_Diff,'Diffusion-from Raw');
 catch
     disp('Error Checking Noise of Diffusion Image');
 end
 %Gas Exchange
 try
-    QC.check_noise(I_Gas_Broad,K_Gas,'Gas Exchange - Gas');
-    QC.check_noise(I_Dissolved,K_Dissolved,'Gas Exchange - Dissolved');
+    QC.check_noise(I_Gas_Broad(:,:,:,1),K_Gas(:,:,1),'Gas Exchange - Gas');
+    QC.check_noise(I_Dissolved(:,:,:,1),K_Dissolved(:,:,1),'Gas Exchange - Dissolved');
 catch
     disp('Error Checking Noise of Gas Exchange Image');
+end
+
+%% Alternatively, Load DICOM Images
+try
+    dicom_vent = ImTools.DICOM_Load('Select Ventilation DICOMs');
+    QC.check_noise(dicom_vent,NaN,'Ventilation-from DICOM');
+catch
+    disp('Error checking noise of DICOM Ventilation image');
+end
+try
+    dicom_diff = ImTools.DICOM_Load('Select Diffusion DICOMs');
+    QC.check_noise(dicom_diff,NaN,'Diffusion-from DICOM');
+catch
+    disp('Error checking noise of DICOM Diffusion image');
 end
 
 %% Save Figures

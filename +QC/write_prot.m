@@ -10,7 +10,7 @@ excel_file = fullfile(Data_Path,'QC','Protocol_QC.xlsx');
 matfile = fullfile(Data_Path,'QC','Protocol_QC.mat');
 
 mymatch = [];
-
+cal{1} = cal{1}(1);
 try 
     load(matfile,'Prot_QC');
     mymatch = strcmpi(Prot_QC.Participant,Participant);

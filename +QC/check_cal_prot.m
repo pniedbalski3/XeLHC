@@ -9,7 +9,7 @@ GasFA = hdr.sequenceParameters.flipAngle_deg(1);
 DisFA = hdr.sequenceParameters.flipAngle_deg(2);
 TE = hdr.sequenceParameters.TE;
 
-Dw = hdr.encoding.trajectoryDescription.userParameterDouble(1).value;
+
 %% Read in all data
 D = dset.readAcquisition();
 
@@ -25,6 +25,8 @@ else
     noise = [];
 end
 meas  = D.select(firstScan:D.getNumber);
+Dw = meas.head.sample_time_us(1);
+
 clear D;
 
 Spectra = length(meas.data);
