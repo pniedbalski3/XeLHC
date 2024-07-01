@@ -41,7 +41,7 @@ gx_fullpath = fullfile(participant_folder,bidsfolder,'xegx',[bidsfolder '_sgas.n
 % Add logic so that this can be skipped for ease of re-analyzing after mask
 % has been developed.
 if ~mask_okay
-    ITKSNAP_Path = '"C:\Program Files\ITK-SNAP 4.0\bin\ITK-SNAP.exe"';
+    ITKSNAP_Path = '"C:\Program Files\ITK-SNAP 3.8\bin\ITK-SNAP.exe"';
 
     mycommand = [ITKSNAP_Path ' -g "' gx_fullpath '" -o "' gxanat_fullpath '" -s "' maskpath '"'];
     system(mycommand);
@@ -200,6 +200,8 @@ R2G = mean(rbc2gas(vent_mask==1));
 M2G = mean(mem2gas(vent_mask==1));
 
 [Data_Path,Participant,~] = fileparts(participant_folder);
+sub_ind = strfind(Participant,'CAQA');
+Participant = Participant(sub_ind:end);
 
 if ~isfolder(fullfile(Data_Path,'QC'))
     mkdir(fullfile(Data_Path,'QC'))
@@ -226,7 +228,7 @@ catch
 end
 
 
-NewData = [{Participant},...
+NewData = [Participant,...
     lung_vol,vent_vol,...
     R2M,M2G,R2G,...
     vent_D,vent_L,vent_H,...
@@ -239,6 +241,9 @@ if isempty(mymatch)
 else
     AllAnalysis(mymatch,:) = NewData;
 end
+
+AllAnalysis = sortrows(AllAnalysis);
+
 save(matfile,'AllAnalysis')
 writetable(AllAnalysis,excel_file,'Sheet',1)
 

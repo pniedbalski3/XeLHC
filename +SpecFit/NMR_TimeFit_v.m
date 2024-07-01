@@ -3,12 +3,12 @@
 % NMR_Mix object. This class knows how to fit to a time domain signal with
 % or without constraints.
 %
-classdef NMR_TimeFit_v < SpecFit.NMR_Fit_v
+classdef NMR_TimeFit_v < Spectroscopy.NMR_Fit_v
     methods
         function obj = NMR_TimeFit_v(time_domain_signal, t, ...
                 area, freq, fwhm, fwhmG, phase, line_broadening, zeroPadSize)
             % Construct an NMR_TimeFit
-            obj = obj@SpecFit.NMR_Fit_v(time_domain_signal, t, ...
+            obj = obj@Spectroscopy.NMR_Fit_v(time_domain_signal, t, ...
                 area, freq, fwhm, fwhmG, phase, line_broadening, zeroPadSize);
         end
         function [fit_area, fit_freq, fit_fwhm, fit_fwhmG, fit_phase, ci_area, ...
@@ -254,16 +254,16 @@ classdef NMR_TimeFit_v < SpecFit.NMR_Fit_v
             % parts to allow for constraints to be used in fitting.
             nComp = numel(nmr_params)/5;
             nmr_params = reshape(nmr_params,[5 nComp]);
-            tmpNmrMix = NMR_Mix_v(nmr_params(1,:), nmr_params(2,:), ...
+            tmpNmrMix = Spectroscopy.NMR_Mix_v(nmr_params(1,:), nmr_params(2,:), ...
                 nmr_params(3,:), nmr_params(4,:), nmr_params(5,:));
             complexSig = tmpNmrMix.calcTimeDomainSignal(t);
             realImagSig = [real(complexSig) imag(complexSig)];
         end
         
         function ax1 = plotTimeAndSpectralFit(obj)
-            newcolors = [0.0 1.00 0.0
+            newcolors = [1 0.14 0.14
              0 0 1.00
-             1 0.14 0.14];
+             0.0 1.00 0.0];
            
             % Calculate fitted and residual spectrums usign time domain
             % signal so that amplitudes are correct even if signal is
@@ -346,11 +346,11 @@ classdef NMR_TimeFit_v < SpecFit.NMR_Fit_v
             set(ax1,'xticklabel',{[]}) ;
             set(ax1,'XDir','reverse');
             title('Spectrum (Components)') %PJN - Give a title
-            legend('element 1','element 2','element 3')
+            legend('RBC','Barrier','Gas')
             
             % Keep all x axes in sinc
             linkaxes([ax1,ax3,ax5 ax7],'x');   
-            ax1.XLim = [-8000,2000];
+            ax1.XLim = [-6000,2000];
             
             % Show results to user
             ax4 = subplot(4,2,4);
@@ -395,7 +395,7 @@ classdef NMR_TimeFit_v < SpecFit.NMR_Fit_v
             ylabel('Component Intensity');
             set(ax2,'xticklabel',{[]}) ;
             title('Time Domain (Components)') %PJN - Give a title
-            legend('element 1','element 2','element 3')
+            legend('RBC','Barrier','Gas')
             
             % Keep all x axes in sinc
             linkaxes([ax2,ax4,ax6 ax8],'x');
