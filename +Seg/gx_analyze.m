@@ -68,6 +68,12 @@ lung_vol = nnz(double(mask))*((FOV/size(I_Gas_Broad,1)).^3)*1e-6;
 %% Separate RBC and Membrane
 [mem,rbc] = Reconstruct.dixon_sep(I_Dissolved(:,:,:,1),R2M,I_Gas_Broad(:,:,:,1),logical(mask));
 
+%% Write mem and RBC images:
+writemem = ReadData.mat2canon(mem);
+niftiwrite(writemem,fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxmem')),'Compressed',true);
+writerbc = ReadData.mat2canon(rbc);
+niftiwrite(writerbc,fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxrbc')),'Compressed',true);
+
 %% Quantitative Corrections:
 gas_scaled = abs(I_Gas_Broad)/(exp(-TE/T2Star(1)));
 mem_cor = mem/(exp(-TE/T2Star(2)));

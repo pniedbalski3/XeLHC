@@ -38,7 +38,7 @@ meas  = D.select(firstScan:D.getNumber);
 clear D;
 
 %% For now, I don't think I really care about the gas, so I can just get the dissolved spectra
-Dis_ind = find(meas.head.idx.contrast == 1);
+Dis_ind = find(meas.head.idx.contrast == 2);
 
 Dis_Spec = meas.data(Dis_ind);
 
