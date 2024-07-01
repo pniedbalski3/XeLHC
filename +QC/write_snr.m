@@ -1,6 +1,8 @@
 function write_snr(SNR,participant_folder)
 
 [Data_Path,Participant,~] = fileparts(participant_folder);
+sub_ind = strfind(Participant,'CAQA');
+Participant = Participant(sub_ind:end);
 
 if ~isfolder(fullfile(Data_Path,'QC'))
     mkdir(fullfile(Data_Path,'QC'))
@@ -27,5 +29,8 @@ if isempty(mymatch)
 else
     AllSNR(mymatch,:) = NewData;
 end
+
+AllSNR = sortrows(AllSNR);
+
 save(matfile,'AllSNR')
 writetable(AllSNR,excel_file,'Sheet',1)

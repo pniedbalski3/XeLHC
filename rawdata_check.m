@@ -131,7 +131,9 @@ try
     [R2M,Cal_SNR,~] = Reconstruct.analyze_cal(mrd_files.cal{1});
 catch
     disp('Error analyzing calibration');
-    Cal_SNR = -1;
+    Cal_SNR(1) = -1;
+    Cal_SNR(2) = -1;
+    Cal_SNR(3) = -1;
 end
 %% Generate Mask 
 try

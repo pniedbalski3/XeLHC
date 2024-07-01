@@ -34,10 +34,10 @@ b12 = squeeze(I_Diff(:,:,2,:));
 ADC = -1/bval(2)*log(b12./b0);
 
 %% Mask
-[~,mask] = erode_dilate(b12,2,5);
+[~,mask] = ImTools.erode_dilate(b12,2,5);
 
 %% Display
-Cmap = parula;
+Cmap = parula(256);
 Cmap(1,:) = [0 0 0];
 figure('Name','ADC Map')
 montage(ADC.*mask)

@@ -11,7 +11,11 @@ bids_path = xebids(participant_folder);
 R2M = rawdata_check(participant_folder);
 
 %% Perform Ventilation Analysis
-VDP = Seg.vdp_analysis(bids_path);
+try
+    VDP = Seg.vdp_analysis(bids_path);
+catch
+    VDP = NaN;
+end
 
 %% Perform Diffusion Analysis
 ADC = diff_analysis(participant_folder);
