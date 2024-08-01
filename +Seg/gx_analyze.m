@@ -31,14 +31,20 @@ else
 end
 
 %% Mask Anatomic Image
-
 anat_name = [bidsfolder '_anat.nii.gz'];
 maskpath = fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxmask.nii.gz'));
 if ~isfile(maskpath)
-    mask = Seg.docker_segment(abs(anat));
-    %Need to write Mask to bids:
-    writemask = ReadData.mat2canon(mask);
-    niftiwrite(writemask,fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxmask')),'Compressed',true);
+    try
+        mask = Seg.docker_segment(abs(anat));
+        %Need to write Mask to bids:
+        writemask = ReadData.mat2canon(mask);
+        niftiwrite(writemask,fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxmask')),'Compressed',true);
+   
+    catch
+        [~,mask] = erode_dilate(I_Gas_Sharp(:,:,:,1),1,7);
+        writemask = ReadData.mat2canon(mask);
+        niftiwrite(writemask,fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxmask')),'Compressed',true);
+    end
 end
 
 gxanat_fullpath = fullfile(participant_folder,bidsfolder,'xegx',anat_name);
@@ -47,7 +53,8 @@ gx_fullpath = fullfile(participant_folder,bidsfolder,'xegx',[bidsfolder '_sgas.n
 % Add logic so that this can be skipped for ease of re-analyzing after mask
 % has been developed.
 if ~mask_okay
-    ITKSNAP_Path = '"C:\Program Files\ITK-SNAP 3.8\bin\ITK-SNAP.exe"';
+    itk_path = ImTools.get_itk_path();
+    ITKSNAP_Path = ['"C:\Program Files\' itk_path '\bin\ITK-SNAP.exe"'];
 
     mycommand = [ITKSNAP_Path ' -g "' gx_fullpath '" -o "' gxanat_fullpath '" -s "' maskpath '"'];
     system(mycommand);

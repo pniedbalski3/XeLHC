@@ -23,22 +23,23 @@ if size(anat,1) ~= size(vent,1) | size(anat,2) ~= size(vent,2) | size(anat,3) ~=
 end
 
 %% Mask image (if needed)
-try
-    maskpath = fullfile(anat_path{2,myinda},strrep(anat_path{1,myinda},'T1w.nii.gz','ventmask.nii.gz'));
-    if ~isfile(maskpath)
+maskpath = fullfile(anat_path{2,myinda},strrep(anat_path{1,myinda},'T1w.nii.gz','ventmask.nii.gz'));
+
+if ~isfile(maskpath)
+    try
         mask = Seg.docker_segment(abs(anat));
         %Need to write Mask to bids:
         writemask = ReadData.mat2canon(mask);
         niftiwrite(mask,fullfile(anat_path{2,myinda},strrep(anat_path{1,myinda},'T1w.nii.gz','ventmask')),'Compressed',true);
+    catch
+        [~,mask] = erode_dilate(vent,1,7);
+        % writemask = ReadData.mat2canon(mask);
+        niftiwrite(mask,fullfile(anat_path{2,myinda},strrep(anat_path{1,myinda},'T1w.nii.gz','ventmask')),'Compressed',true);
     end
-catch
-    [~,mask] = erode_dilate(vent,1,7);
-    % writemask = ReadData.mat2canon(mask);
-    niftiwrite(mask,fullfile(anat_path{2,myinda},strrep(anat_path{1,myinda},'T1w.nii.gz','ventmask')),'Compressed',true);
 end
-
 %% Now, I should be able to load these files into ITK-snap for checking:
-ITKSNAP_Path = '"C:\Program Files\ITK-SNAP 4.0\bin\ITK-SNAP.exe"';
+itk_path = ImTools.get_itk_path();
+ITKSNAP_Path = ['"C:\Program Files\' itk_path '\bin\ITK-SNAP.exe"'];
 
 mycommand = [ITKSNAP_Path ' -g "' vent_full_path '" -o "' anat_full_path '" -s "' maskpath '"'];
 system(mycommand);
