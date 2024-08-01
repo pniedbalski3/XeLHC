@@ -12,18 +12,24 @@ filenames = All_files(1,:);
 
 % Need to find cali.h5, vent.h5, ventanat.h5 diff.h5, dixon.h5, ute.h5 
 
-cal_indx = find(contains(filenames,'calibration.h5'));
-vent_indx = find(contains(filenames,'vent.h5'));
+cal_indx = find(contains(filenames,'calibration.'));
+if isempty(cal_indx)
+    cal_indx = find(contains(filenames,'Calibration.'));
+end
+vent_indx = find(contains(filenames,'vent.'));
 if isempty(vent_indx)
-    vent_indx = find(contains(filenames,'gre.h5'));
+    vent_indx = find(contains(filenames,'gre.'));
 end
-ventanat_indx = find(contains(filenames,'ventanat.h5'));
-diff_indx = find(contains(filenames,'diff.h5'));
-dixon_indx = find(contains(filenames,'dixon.h5'));
+ventanat_indx = find(contains(filenames,'ventanat.'));
+diff_indx = find(contains(filenames,'diff.'));
+dixon_indx = find(contains(filenames,'dixon.'));
 if isempty(dixon_indx)
-    dixon_indx = find(contains(filenames,'dissolved.h5'));
+    dixon_indx = find(contains(filenames,'dissolved.'));
 end
-ute_indx = find(contains(filenames,'proton.h5'));
+if isempty(dixon_indx)
+    dixon_indx = find(contains(filenames,'Dissolved.'));
+end
+ute_indx = find(contains(filenames,'proton.'));
 
 mrd_files.cal = fullfile(All_files(2,cal_indx),All_files(1,cal_indx));
 mrd_files.vent = fullfile(All_files(2,vent_indx),All_files(1,vent_indx));

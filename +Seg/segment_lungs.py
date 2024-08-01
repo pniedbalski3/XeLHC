@@ -110,6 +110,8 @@ with tf.device('/cpu:0'):
             dim = ants.image_clone(img)
             if (dim.shape) != (128,128,128):
                 resample = ants.resample_image(dim, resample_params = (128,128,128), use_voxels=True, interp_type=0)
+            else:
+                resample = dim
             norm = ants.iMath(resample, 'Normalize').numpy()
             reshaped = norm.reshape(1,*norm.shape,1)
             result = model_3D.predict(reshaped)

@@ -32,10 +32,7 @@ try
         niftiwrite(mask,fullfile(anat_path{2,myinda},strrep(anat_path{1,myinda},'T1w.nii.gz','ventmask')),'Compressed',true);
     end
 catch
-    [~,mask] = erode_dilate(vent,1,7);
-    % writemask = ReadData.mat2canon(mask);
-    niftiwrite(mask,fullfile(anat_path{2,myinda},strrep(anat_path{1,myinda},'T1w.nii.gz','ventmask')),'Compressed',true);
-end
+    
 
 %% Now, I should be able to load these files into ITK-snap for checking:
 ITKSNAP_Path = '"C:\Program Files\ITK-SNAP 4.0\bin\ITK-SNAP.exe"';

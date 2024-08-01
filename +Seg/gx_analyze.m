@@ -22,7 +22,13 @@ I_Gas_Sharp = I_Gas_Sharp(:,:,:,1);
 I_Gas_Broad = I_Gas_Broad(:,:,:,1);
 I_Dissolved = I_Dissolved(:,:,:,1);
 % 
-[anat,~] = Reconstruct.gxanat_recon(mrd_files.ute{1},true);
+
+if isempty(mrd_files.ute)
+    anat = DICOM_Load;
+    anat = imresize3(anat,[64 64 64]);
+else
+    [anat,~] = Reconstruct.gxanat_recon(mrd_files.ute{1},true);
+end
 
 %% Mask Anatomic Image
 
@@ -56,7 +62,11 @@ dset = ismrmrd.Dataset(mrd_files.dixon{1},'dataset');
 hdr = ismrmrd.xml.deserialize(dset.readxml);
 Gas_FA = hdr.sequenceParameters.flipAngle_deg(1);
 Dis_FA = hdr.sequenceParameters.flipAngle_deg(2);
-TE = hdr.sequenceParameters.TE(3);
+try
+    TE = hdr.sequenceParameters.TE(3);
+catch
+    TE = hdr.sequenceParameters.TE(1);
+end
 FOV = hdr.encoding.encodedSpace.fieldOfView_mm.z;
 
 %% We can get Lung Volume here:

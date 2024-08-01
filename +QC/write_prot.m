@@ -2,6 +2,9 @@ function write_prot(cal,vent,diff,gx,participant_folder)
 
 [Data_Path,Participant,~] = fileparts(participant_folder);
 sub_ind = strfind(Participant,'CAQA');
+if isempty(sub_ind)
+    sub_ind = strfind(Participant,'CACB');
+end
 Participant = Participant(sub_ind:end);
 
 if ~isfolder(fullfile(Data_Path,'QC'))
