@@ -26,9 +26,10 @@ ImName = 'tmp_seg_image.nii.gz';
 
 mapping = ['-v ' CodePath ':/mnt/mycode -v ' ImPath ':/mnt/mydata'];
 
-dockercommand = ['docker run ' mapping ' noelmni/antspynet python /mnt/mycode/+Seg/segment_lungs.py /mnt/mydata/' ImName ' &'];
+%dockercommand = ['docker run ' mapping ' noelmni/antspynet python /mnt/mycode/+Seg/segment_lungs.py /mnt/mydata/' ImName ' &'];
+dockercommand = ['docker run ' mapping ' noelmni/antspynet python /mnt/mycode/+Seg/segment_lungs.py /mnt/mydata/' ImName];
 
-status = system(dockercommand);pause(30)
+status = system(dockercommand);%pause(30)
 
 % Read in mask - rotate image back to matlab orientation
 mask = niftiread(fullfile(parent_path,'Tmp','tmp_seg_image_mask.nii.gz'));

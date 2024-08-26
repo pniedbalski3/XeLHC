@@ -6,7 +6,6 @@ end
 
 GX_Version = '20240213_V1.0';
 
-
 %% Read Files
 mrd_files = ReadData.get_mrd(participant_folder);
 
@@ -15,62 +14,25 @@ folders = struct2cell(folders);
 getnames = folders(1,:);
 myfolderind = find(contains(getnames,'sub-'));
 bidsfolder = getnames{myfolderind};
-dset = ismrmrd.Dataset(mrd_files.dixon{1},'dataset');
-hdr = ismrmrd.xml.deserialize(dset.readxml);
 
 %% Reconstruct Images
 % Gas and Dissolved - don't need to write nifti
-[I_Gas_Sharp,I_Gas_Broad,I_Dissolved,~,~] = Reconstruct.gx_recon(mrd_files.dixon{1},0,true);
-if contains(participant_folder,'CABA072')
-    I_Gas_Sharp = I_Gas_Sharp(:,:,:,1);
-    I_Dissolved = I_Gas_Broad(:,:,:,2);
-    I_Gas_Broad = I_Gas_Broad(:,:,:,1);
-elseif contains(participant_folder,'CACB054')
-    I_Gas_Sharp = I_Dissolved(:,:,:,1);
-    I_DissolvedA = I_Gas_Broad(:,:,:,1);
-    I_Gas_Broad = I_Dissolved(:,:,:,1);
-    I_Dissolved = I_DissolvedA;
-else
-    I_Gas_Sharp = I_Gas_Sharp(:,:,:,1);
-    I_Gas_Broad = I_Gas_Broad(:,:,:,1);
-    I_Dissolved = I_Dissolved(:,:,:,1);
-end
-    % 
-
-if contains(hdr.acquisitionSystemInformation.institutionName,'Iowa')
-    I_Gas_Sharp = I_Gas_Sharp;
-    I_Gas_Broad = I_Gas_Broad;
-    %I_Dissolved = flip(flip(I_Dissolved),3);
-end
-
-if isempty(mrd_files.ute)
-    anat = ImTools.DICOM_Load();
-    anat = imresize3(anat,[64 64 64]);
-    anat = flip(anat);%figure;montage(test/max(abs(test(:))))
-else
-    try
-        [anat,~] = Reconstruct.gxanat_recon(mrd_files.ute{1},true);
-    catch
-        anat = zeros(size(I_Gas_Sharp));
-    end
-end
-
+[I_Gas_Sharp,I_Gas_Broad,I_Dissolved,~,~] = Reconstruct.gx_recon(mrd_files.dixon{1},4,true);
+I_Gas_Sharp = I_Gas_Sharp(:,:,:,1);
+I_Gas_Broad = I_Gas_Broad(:,:,:,1);
+I_Dissolved = I_Dissolved(:,:,:,1);
+% 
+[anat,~] = Reconstruct.gxanat_recon(mrd_files.ute{1},true);
 
 %% Mask Anatomic Image
+
 anat_name = [bidsfolder '_anat.nii.gz'];
 maskpath = fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxmask.nii.gz'));
 if ~isfile(maskpath)
-    try
-        mask = Seg.docker_segment(abs(anat));
-        %Need to write Mask to bids:
-        writemask = ReadData.mat2canon(mask);
-        niftiwrite(writemask,fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxmask')),'Compressed',true);
-   
-    catch
-        [~,mask] = erode_dilate(I_Gas_Sharp(:,:,:,1),1,7);
-        writemask = ReadData.mat2canon(mask);
-        niftiwrite(writemask,fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxmask')),'Compressed',true);
-    end
+    mask = Seg.docker_segment(abs(anat));
+    %Need to write Mask to bids:
+    writemask = ReadData.mat2canon(mask);
+    niftiwrite(writemask,fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxmask')),'Compressed',true);
 end
 
 gxanat_fullpath = fullfile(participant_folder,bidsfolder,'xegx',anat_name);
@@ -79,8 +41,7 @@ gx_fullpath = fullfile(participant_folder,bidsfolder,'xegx',[bidsfolder '_sgas.n
 % Add logic so that this can be skipped for ease of re-analyzing after mask
 % has been developed.
 if ~mask_okay
-    itk_path = ImTools.get_itk_path();
-    ITKSNAP_Path = ['"C:\Program Files\' itk_path '\bin\ITK-SNAP.exe"'];
+    ITKSNAP_Path = '"C:\Program Files\ITK-SNAP 4.0\bin\ITK-SNAP.exe"';
 
     mycommand = [ITKSNAP_Path ' -g "' gx_fullpath '" -o "' gxanat_fullpath '" -s "' maskpath '"'];
     system(mycommand);
@@ -95,16 +56,9 @@ dset = ismrmrd.Dataset(mrd_files.dixon{1},'dataset');
 hdr = ismrmrd.xml.deserialize(dset.readxml);
 Gas_FA = hdr.sequenceParameters.flipAngle_deg(1);
 Dis_FA = hdr.sequenceParameters.flipAngle_deg(2);
-try
-    TE = hdr.sequenceParameters.TE(3);
-catch
-    TE = hdr.sequenceParameters.TE(1);
-end
-try
-    FOV = hdr.encoding.encodedSpace.fieldOfView_mm.z;
-catch
-    FOV = hdr.encoding.reconSpace.fieldOfView_mm.z;
-end
+TE = hdr.sequenceParameters.TE(3);
+FOV = hdr.encoding.encodedSpace.fieldOfView_mm.z;
+
 %% We can get Lung Volume here:
 lung_vol = nnz(double(mask))*((FOV/size(I_Gas_Broad,1)).^3)*1e-6;
 %%TODO: Recon and Masking done. Now run analysis and bin.
@@ -112,17 +66,7 @@ lung_vol = nnz(double(mask))*((FOV/size(I_Gas_Broad,1)).^3)*1e-6;
 [R2M,~,T2Star] = Reconstruct.analyze_cal(mrd_files.cal{1});
 
 %% Separate RBC and Membrane
-if contains(hdr.acquisitionSystemInformation.institutionName,'Iowa')
-    [mem,rbc] = Reconstruct.dixon_sep(I_Dissolved(:,:,:,1),-R2M,I_Gas_Broad(:,:,:,1),logical(mask));
-else
-    [mem,rbc] = Reconstruct.dixon_sep(I_Dissolved(:,:,:,1),R2M,I_Gas_Broad(:,:,:,1),logical(mask));
-end
-
-%% Write mem and RBC images:
-writemem = ReadData.mat2canon(mem);
-niftiwrite(writemem,fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxmem')),'Compressed',true);
-writerbc = ReadData.mat2canon(rbc);
-niftiwrite(writerbc,fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxrbc')),'Compressed',true);
+[mem,rbc] = Reconstruct.dixon_sep(I_Dissolved(:,:,:,1),R2M,I_Gas_Broad(:,:,:,1),logical(mask));
 
 %% Quantitative Corrections:
 gas_scaled = abs(I_Gas_Broad)/(exp(-TE/T2Star(1)));
@@ -250,8 +194,6 @@ R2G = mean(rbc2gas(vent_mask==1));
 M2G = mean(mem2gas(vent_mask==1));
 
 [Data_Path,Participant,~] = fileparts(participant_folder);
-sub_ind = strfind(Participant,'CA');
-Participant = Participant(sub_ind:end);
 
 if ~isfolder(fullfile(Data_Path,'QC'))
     mkdir(fullfile(Data_Path,'QC'))
@@ -278,7 +220,7 @@ catch
 end
 
 
-NewData = [Participant,...
+NewData = [{Participant},...
     lung_vol,vent_vol,...
     R2M,M2G,R2G,...
     vent_D,vent_L,vent_H,...
@@ -291,9 +233,6 @@ if isempty(mymatch)
 else
     AllAnalysis(mymatch,:) = NewData;
 end
-
-AllAnalysis = sortrows(AllAnalysis);
-
 save(matfile,'AllAnalysis')
 writetable(AllAnalysis,excel_file,'Sheet',1)
 

@@ -1,4 +1,4 @@
-function ADCmean = diff_analysis(mypath)
+function ADCmean = diff_analysisDICOM(mypath)
 
 try
     mrd_files = ReadData.get_mrd(mypath);
@@ -31,7 +31,7 @@ end
 [~,~,bval] = Reconstruct.gre_recon(mrd_files.diff{1});
 
 %% Perhaps pull DICOMs instead
-I_Diff = DICOM_Load;
+I_Diff = ImTools.DICOM_Load();
 
 b0 = I_Diff(:,:,1:7);
 b12 = I_Diff(:,:,8:end);
@@ -43,7 +43,7 @@ b12 = I_Diff(:,:,8:end);
 ADC = -1/bval(2)*log(b12./b0);
 
 %% Mask
-[~,mask] = erode_dilate(b12,2,20);
+[~,mask] = ImTools.erode_dilate(b12,2,20);
 
 %% Display
 Cmap = parula(256);

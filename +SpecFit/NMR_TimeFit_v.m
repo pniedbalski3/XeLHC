@@ -3,12 +3,12 @@
 % NMR_Mix object. This class knows how to fit to a time domain signal with
 % or without constraints.
 %
-classdef NMR_TimeFit_v < Spectroscopy.NMR_Fit_v
+classdef NMR_TimeFit_v < SpecFit.NMR_Fit_v
     methods
         function obj = NMR_TimeFit_v(time_domain_signal, t, ...
                 area, freq, fwhm, fwhmG, phase, line_broadening, zeroPadSize)
             % Construct an NMR_TimeFit
-            obj = obj@Spectroscopy.NMR_Fit_v(time_domain_signal, t, ...
+            obj = obj@SpecFit.NMR_Fit_v(time_domain_signal, t, ...
                 area, freq, fwhm, fwhmG, phase, line_broadening, zeroPadSize);
         end
         function [fit_area, fit_freq, fit_fwhm, fit_fwhmG, fit_phase, ci_area, ...
@@ -254,7 +254,7 @@ classdef NMR_TimeFit_v < Spectroscopy.NMR_Fit_v
             % parts to allow for constraints to be used in fitting.
             nComp = numel(nmr_params)/5;
             nmr_params = reshape(nmr_params,[5 nComp]);
-            tmpNmrMix = Spectroscopy.NMR_Mix_v(nmr_params(1,:), nmr_params(2,:), ...
+            tmpNmrMix = SpecFit.NMR_Mix_v(nmr_params(1,:), nmr_params(2,:), ...
                 nmr_params(3,:), nmr_params(4,:), nmr_params(5,:));
             complexSig = tmpNmrMix.calcTimeDomainSignal(t);
             realImagSig = [real(complexSig) imag(complexSig)];

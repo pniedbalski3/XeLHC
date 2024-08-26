@@ -17,8 +17,8 @@ vent_ind = find(contains(vent_files,'.nii.gz'));
 
 vent_path = fullfile(vent_fold,vent_files{1,vent_ind});
 
-ITKSNAP_Path = '"C:\Program Files\ITK-SNAP 4.0\bin\ITK-SNAP.exe"';
-
+itk_path =  ImTools.get_itk_path;%'"C:\Program Files\ITK-SNAP 4.0\bin\ITK-SNAP.exe"';
+ITKSNAP_Path = ['"C:\Program Files\' itk_path '\bin\ITK-SNAP.exe"'];
 mycommand = [ITKSNAP_Path ' -g "' vent_path '"'];
 system(mycommand);
 

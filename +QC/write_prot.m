@@ -5,6 +5,9 @@ sub_ind = strfind(Participant,'CAQA');
 if isempty(sub_ind)
     sub_ind = strfind(Participant,'CACB');
 end
+if isempty(sub_ind)
+    sub_ind = strfind(Participant,'CABA');
+end
 Participant = Participant(sub_ind:end);
 
 if ~isfolder(fullfile(Data_Path,'QC'))

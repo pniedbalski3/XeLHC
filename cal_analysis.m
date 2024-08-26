@@ -12,8 +12,8 @@ if isempty(myext)
     end
     % files = struct2cell(dir(cal_file));
     names = files(1,:);
-    myfile = names{find(contains(names,'_calibration.h5'),1,'last')};
-    cal_file = fullfile(files(2,find(contains(names,'_calibration.h5'),1,'last')),myfile);
+    myfile = names{find(contains(names,'calibration.'),1,'last')};
+    cal_file = fullfile(files(2,find(contains(names,'calibration.'),1,'last')),myfile);
     cal_file = cal_file{1};
     myext = '.h5';
 
@@ -99,6 +99,9 @@ elseif strcmp(myext,'.h5')
     for i = 1:length(Dis_Spec)
         disData(:,i) = Dis_Spec{i};
     end
+    if contains(hdr.acquisitionSystemInformation.institutionName,'Iowa')
+        disData = conj(disData)/max(abs(disData(:)));
+    end
 
     t = double((0:(length(disData)-1))*Dw')*1e-6;
 end
@@ -109,9 +112,9 @@ Mem = zeros(140,1);
 RBC_Shift = zeros(140,1);
 Mem_Shift = zeros(140,1);
 parfor j = 1:size(disData,2)
-    disfitObj = Spectroscopy.NMR_TimeFit_v(disData(:,j),t',[1 1 1],[Rfreq_guess Mfreq_guess Gfreq_guess],[250 200 30],[0 200 0],[0 0 0],2,length(t)*2); % first widths lorenzian, 2nd are gauss
+    disfitObj = SpecFit.NMR_TimeFit_v(disData(:,j),t',[1 1 1],[Rfreq_guess Mfreq_guess Gfreq_guess],[250 200 30],[0 200 0],[0 0 0],2,length(t)*2); % first widths lorenzian, 2nd are gauss
     disfitObj = disfitObj.fitTimeDomainSignal();
-%    disfitObj.plotTimeAndSpectralFit;
+%    figure;disfitObj.plotTimeAndSpectralFit;
     Gas(j) = disfitObj.area(3);
     RBC(j) = disfitObj.area(1);
     Mem(j) = disfitObj.area(2);

@@ -18,11 +18,10 @@ catch
 end
 
 %% Perform Diffusion Analysis
-try
-    ADC = diff_analysis(participant_folder);
-catch
-    ADC = diff_analysisDICOM(participant_folder);
-end
+%ADC = diff_analysis(participant_folder);
+
+ADC = diff_analysisDICOM(participant_folder);
+
 %% Perform Calibration Analysis
 Osc_Amp = cal_analysis(participant_folder);
 

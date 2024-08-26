@@ -34,11 +34,11 @@ end
 
 %% Find the latest Ventilation Series:
 try
-    Vent_GRE_ind = contains(ProtName,'vent','IgnoreCase',true) & contains(Nucleus,'Xe','IgnoreCase',true);
+    Vent_GRE_ind = (contains(ProtName,'vent','IgnoreCase',true) | contains(ProtName,'gre_hpg')) & contains(Nucleus,'Xe','IgnoreCase',true);
     
     last_vent_series = max(series_no(Vent_GRE_ind));
     
-    Vent_target_ind = contains(ProtName,'vent','IgnoreCase',true) & contains(Nucleus,'Xe','IgnoreCase',true) & series_no == last_vent_series;
+    Vent_target_ind = (contains(ProtName,'vent','IgnoreCase',true) | contains(ProtName,'gre_hpg')) & contains(Nucleus,'Xe','IgnoreCase',true) & series_no == last_vent_series;
     
     Vent_target_index = find(Vent_target_ind);
     

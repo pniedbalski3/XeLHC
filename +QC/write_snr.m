@@ -1,7 +1,7 @@
 function write_snr(SNR,participant_folder)
 
 [Data_Path,Participant,~] = fileparts(participant_folder);
-sub_ind = strfind(Participant,'CAQA');
+sub_ind = strfind(Participant,'CA');
 Participant = Participant(sub_ind:end);
 
 if ~isfolder(fullfile(Data_Path,'QC'))

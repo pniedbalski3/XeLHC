@@ -18,12 +18,16 @@ DisFA = hdr.sequenceParameters.flipAngle_deg(2);
 TE = hdr.sequenceParameters.TE(1);
 %Dw = hdr.encoding.trajectoryDescription.userParameterDouble(1).value;
 
-GasFreq = hdr.userParameters.userParameterLong(1).value;
-DisFreq = hdr.userParameters.userParameterLong(2).value;
-
+try
+    GasFreq = hdr.userParameters.userParameterLong(2).value;
+    DisFreq = hdr.userParameters.userParameterLong(3).value;
+catch
+    GasFreq = hdr.userParameters.userParameterLong(1).value;
+    DisFreq = hdr.userParameters.userParameterLong(2).value;
+end
 chem_shift = (DisFreq)/GasFreq * 1e6;
 
-Resolution = [rec_FOVx/rec_Nx rec_FOVy/rec_Ny rec_FOVz/rec_Nz];
+Resolution = [rec_FOVx/rec_Nz rec_FOVy/rec_Nz rec_FOVz/rec_Nz];
 
 %% Read in all data
 D = dset.readAcquisition();
