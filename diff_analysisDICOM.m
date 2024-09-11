@@ -44,7 +44,7 @@ ADC = -1/bval(2)*log(b12./b0);
 
 %% Mask
 [~,mask] = ImTools.erode_dilate(b12,2,20);
-
+mask = ImTools.gen_mask_itk(b0,mask);
 %% Display
 Cmap = parula(256);
 Cmap(1,:) = [0 0 0];

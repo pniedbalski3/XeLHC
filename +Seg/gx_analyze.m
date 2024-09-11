@@ -110,6 +110,10 @@ lung_vol = nnz(double(mask))*((FOV/size(I_Gas_Broad,1)).^3)*1e-6;
 %%TODO: Recon and Masking done. Now run analysis and bin.
 %% Analyze Calibration:
 [R2M,~,T2Star] = Reconstruct.analyze_cal(mrd_files.cal{1});
+%CAQA069 has a bad calibration file, so get R2M from Post-spectra
+if contains(participant_folder,'CAQA069')
+    [R2M,T2Star] = Reconstruct.analyze_post_cal(mrd_files.dixon{1});
+end
 
 %% Separate RBC and Membrane
 if contains(hdr.acquisitionSystemInformation.institutionName,'Iowa')
