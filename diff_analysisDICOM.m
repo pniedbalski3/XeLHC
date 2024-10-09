@@ -39,12 +39,27 @@ b12 = I_Diff(:,:,8:end);
 %% Get b-val images and ADC
 %b0 = squeeze(I_Diff(:,:,1,:));
 %b12 = squeeze(I_Diff(:,:,2,:));
-
-ADC = -1/bval(2)*log(b12./b0);
+try
+    ADC = -1/bval(2)*log(b12./b0);
+catch
+    b0 = I_Diff(:,:,1:6);
+    b12 = I_Diff(:,:,7:end);
+    ADC = -1/bval(2)*log(b12./b0);
+end
 
 %% Mask
-[~,mask] = ImTools.erode_dilate(b12,2,20);
+try
+   load(fullfile(mypath,'Diffusion_Analysis_DICOM.mat'),'mask')
+catch
+    try
+        load(fullfile(mypath,'Diffusion_Analysis.mat'),'mask')
+        mask = imresize3(mask,size(ADC));
+    catch
+        [~,mask] = ImTools.erode_dilate(b12,2,20);
+    end
+end
 mask = ImTools.gen_mask_itk(b0,mask);
+mask = double(mask);
 %% Display
 Cmap = parula(256);
 Cmap(1,:) = [0 0 0];
@@ -56,4 +71,4 @@ caxis([0 0.14]);
 ADCmean = mean(ADC(mask==1));
 
 %% Save Results
-save(fullfile(mypath,'Diffusion_Analysis.mat'));
+save(fullfile(mypath,'Diffusion_Analysis_DICOM.mat'));

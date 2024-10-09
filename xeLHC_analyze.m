@@ -19,9 +19,9 @@ end
 
 %% Perform Diffusion Analysis
 try
-    ADC = diff_analysis(participant_folder);
+    ADC = diff_analysis_bids(bids_path);
 catch
-    ADC = diff_analysisDICOM(participant_folder);
+    ADC = diff_analysis(participant_folder);
 end
 %% Perform Calibration Analysis
 Osc_Amp = cal_analysis(participant_folder);

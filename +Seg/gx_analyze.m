@@ -55,6 +55,9 @@ else
     end
 end
 
+if size(anat,1) ~= 64
+    anat = imresize3(anat,[64 64 64]);
+end
 
 %% Mask Anatomic Image
 anat_name = [bidsfolder '_anat.nii.gz'];

@@ -16,8 +16,11 @@ anat_files = struct2cell(anat_files);
 anat_files = anat_files(1,:);
 anat_ind = find(contains(anat_files,'anat.nii.gz'));
 anat_path = fullfile(anat_fold,anat_files{1,anat_ind});
-anat = ReadData.canon2mat(double(niftiread(anat_path)));
-
+try
+    anat = ReadData.canon2mat(double(niftiread(anat_path)));
+catch
+    anat = zeros(size(mem_bin));
+end
 
 % myslice = 1;
 % most_pts = 0;
