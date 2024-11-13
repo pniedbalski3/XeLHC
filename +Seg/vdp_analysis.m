@@ -120,7 +120,7 @@ load(fullfile(Data_Path,'QC','Vent_LB_Ref.mat'));
 vent_bin = Reconstruct.bin_images(vent,vent_thresh);
 vent_bin = vent_bin.*mask;
 ventn4_bin = Reconstruct.bin_images(vent_N4,ventn4_thresh);
-ventn4_bin = vent_bin.*mask;
+ventn4_bin = ventn4_bin.*mask;
 
 %% Create loops for ease:
 %1 = 60%, 2 = linear binning, 3 = k-means, 4 = c-means, 5 = atropos, 6 = el

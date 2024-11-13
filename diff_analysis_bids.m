@@ -77,6 +77,8 @@ caxis([0 0.14]);
 
 tmp = ADC(mask==1);
 tmp(isnan(tmp)) = [];
+tmp(isinf(tmp)) = [];
+tmp(tmp<0) = [];
 ADCmean = mean(tmp);
 
 %% Save Results
