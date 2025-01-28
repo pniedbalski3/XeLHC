@@ -4,11 +4,21 @@ if nargin < 1
     participant_folder = uigetdir();
 end
 
-load(fullfile(participant_folder,'Diffusion_Analysis.mat'),'ADC','mask');
-try
-    load(fullfile(participant_folder,'DiffMask_Manual.mat'),'mask');
-catch
-end
+% load(fullfile(participant_folder,'Diffusion_Analysis.mat'),'ADC','mask');
+% try
+%     load(fullfile(participant_folder,'DiffMask_Manual.mat'),'mask');
+% catch
+% end
+[~,part,~] = fileparts(participant_folder);
+    part_start = strfind(part,'CA');
+    bids_fold = fullfile(participant_folder,['sub-' part(part_start:end)]);
+    load(fullfile(bids_fold,'xedwi','Diffusion_Analysis.mat'),'ADC','mask')
+
+% load(fullfile(participant_folder,'Diffusion_Analysis.mat'),'ADC','mask');
+% try
+%     load(fullfile(participant_folder,'DiffMask_Manual.mat'),'mask');
+% catch
+% end
 
 mask = double(mask);
 CMap = parula(256);
