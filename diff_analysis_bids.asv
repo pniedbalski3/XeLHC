@@ -7,7 +7,7 @@ end
 diff_path = struct2cell(dir(fullfile(bidsfold,'xedwi')));
 myind = find(contains(diff_path(1,:),'.nii.gz'));
 
-myind(myind==find(contains(diff_path(1,:),'Binned') & contains(diff_path(1,:),'.nii.gz'))) = [];
+
 
 % Some niftis write out as single slices, so need to handle that here.
 if length(myind) > 9

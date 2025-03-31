@@ -103,7 +103,7 @@ elseif strcmp(myext,'.h5')
         disData = conj(disData)/max(abs(disData(:)));
     end
 
-    t = double((0:(length(disData)-1))*Dw')*1e-6;
+    t = double((0:(size(disData,1)-1))*Dw')*1e-6;
 end
 
 Gas = zeros(140,1);

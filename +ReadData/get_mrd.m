@@ -16,20 +16,38 @@ cal_indx = find(contains(filenames,'calibration.'));
 if isempty(cal_indx)
     cal_indx = find(contains(filenames,'Calibration.'));
 end
+if isempty(cal_indx)
+    cal_indx = find(contains(filenames,'_calibration'));
+end
 vent_indx = find(contains(filenames,'vent.'));
 if isempty(vent_indx)
     vent_indx = find(contains(filenames,'gre.'));
 end
+if isempty(vent_indx)
+    vent_indx = find(contains(filenames,'_vent'));
+end
 ventanat_indx = find(contains(filenames,'ventanat.'));
+if isempty(ventanat_indx)
+    ventanat_indx = find(contains(filenames,'_ventanat'));
+end
 diff_indx = find(contains(filenames,'diff.'));
+if isempty(diff_indx)
+    diff_indx = find(contains(filenames,'_diff'));
+end
 dixon_indx = find(contains(filenames,'dixon.'));
 if isempty(dixon_indx)
     dixon_indx = find(contains(filenames,'dissolved.'));
 end
 if isempty(dixon_indx)
+    dixon_indx = find(contains(filenames,'_dixon'));
+end
+if isempty(dixon_indx)
     dixon_indx = find(contains(filenames,'Dissolved.'));
 end
 ute_indx = find(contains(filenames,'proton.'));
+if isempty(ute_indx)
+    ute_indx = find(contains(filenames,'_proton'));
+end
 
 mrd_files.cal = fullfile(All_files(2,cal_indx),All_files(1,cal_indx));
 mrd_files.vent = fullfile(All_files(2,vent_indx),All_files(1,vent_indx));
