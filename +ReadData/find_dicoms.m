@@ -22,6 +22,9 @@ All_files = struct2cell(All_files);
 filenames = All_files(1,:);
 folders = All_files(2,:);
 
+filenames(contains(folders,'sub-')) = [];
+folders(contains(folders,'sub-')) = [];
+
 dcm_indx = find(contains(filenames,'.dcm'));
 
 if isempty(dcm_indx)

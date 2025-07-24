@@ -15,7 +15,7 @@ if length(myindv) > 1
 end
 
 vent_full_path = fullfile(vent_path{2,myindv},vent_path{1,myindv});
-vent = double(niftiread(fullfile(vent_path{2,myindv},vent_path{1,myindv})));
+vent = squeeze(double(niftiread(fullfile(vent_path{2,myindv},vent_path{1,myindv}))));
 
 anat_path = struct2cell(dir(fullfile(bidsfold,'anat')));
 myinda = find(contains(anat_path(1,:),'T1w.nii.gz'));

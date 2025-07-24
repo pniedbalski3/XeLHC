@@ -51,8 +51,11 @@ catch
 end
 
 %% Write protocol information to excel file
-QC.write_prot(cal_prot,vent_prot,diff_prot,gx_prot,participant_folder);
-
+try
+    QC.write_prot(cal_prot,vent_prot,diff_prot,gx_prot,participant_folder);
+catch
+    disp('Failed to write protocol to excel file')
+end
 %% Reconstruct Images
 %Ventilation
 %Recon for Iowa is bad for vent and diff, but at least allows an estimate

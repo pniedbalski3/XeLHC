@@ -6,11 +6,11 @@ end
 %% Read in images and b values
 diff_path = struct2cell(dir(fullfile(bidsfold,'xedwi')));
 myind = find(contains(diff_path(1,:),'.nii.gz'));
-
 try
     myind(myind==find(contains(diff_path(1,:),'Binned') & contains(diff_path(1,:),'.nii.gz'))) = [];
 catch
 end
+
 % Some niftis write out as single slices, so need to handle that here.
 if length(myind) > 9
     slice_ind = zeros(length(myind),1);

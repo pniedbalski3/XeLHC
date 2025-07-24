@@ -84,9 +84,15 @@ gx_fullpath = fullfile(participant_folder,bidsfolder,'xegx',[bidsfolder '_sgas.n
 if ~mask_okay
     itk_path = ImTools.get_itk_path();
     ITKSNAP_Path = ['"C:\Program Files\' itk_path '\bin\ITK-SNAP.exe"'];
-
-    mycommand = [ITKSNAP_Path ' -g "' gx_fullpath '" -o "' gxanat_fullpath '" -s "' maskpath '"'];
-    system(mycommand);
+    
+    %Make this smarter later, but so I can test UIC Data, just look at both
+    %of these
+        mycommand = [ITKSNAP_Path ' -g "' gx_fullpath '" -o "' gxanat_fullpath '" -s "' maskpath '"'];
+        system(mycommand);
+    
+        mycommand = [ITKSNAP_Path ' -g "' gx_fullpath '" -s "' maskpath '"'];
+        system(mycommand);
+    
 end
 
 mask = double(niftiread(maskpath));
