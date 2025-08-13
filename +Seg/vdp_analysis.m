@@ -59,6 +59,9 @@ vent = vent/prctile(vent(mask==1),99);
 vent_N4 = double(Seg.strong_N4(vent,mask));
 vent_N4 = vent_N4/prctile(vent_N4(mask==1),99);
 
+vent_N4_b = double(Seg.strong_N4(vent,mask));
+vent_N4_b = vent_N4_b/prctile(vent_N4_b(mask==1),99);
+
 %% This should pause until the user closes ITK-Snap.
 %Now, I should have a decent mask, and I can calculate VDP. For now, use
 %60% threshold... In the future, expand.
@@ -104,6 +107,7 @@ myinfo.Datatype = 'double';
 niftiwrite(vent_N4,fullfile(analysis_fold,strrep([ventname,ventext],'vent','ventn4')),myinfo,'Compressed',true)
 copyfile(vent_full_path,analysis_fold);
 copyfile(maskpath,analysis_fold);
+niftiwrite(vent_N4_b,fullfile(analysis_fold,strrep([ventname,ventext],'vent','ventn4_smooth')),myinfo,'Compressed',true)
 
 Seg.docker_vdp(fullfile(analysis_fold,[ventname ventext]),fullfile(analysis_fold,[maskname,maskext]));
 Seg.docker_vdp(fullfile(analysis_fold,strrep([ventname,ventext],'vent','ventn4')),fullfile(analysis_fold,[maskname,maskext]));
