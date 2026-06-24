@@ -18,7 +18,9 @@ if isfield(hdr.acquisitionSystemInformation,'systemVendor')
     hdr.acquisitionSystemInformation.institutionName =[];
 end
 hdr.studyInformation.studyDate = [];
-hdr.studyInformation.patientPosition = '';
+hdr.patientBirthdate = "";
+
+
 
 if isfield(hdr.encoding.trajectoryDescription,'identifier')
     hdr.encoding.trajectoryDescription.userParameterLong = [];

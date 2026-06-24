@@ -15,12 +15,20 @@ folders = struct2cell(folders);
 getnames = folders(1,:);
 myfolderind = find(contains(getnames,'sub-'));
 bidsfolder = getnames{myfolderind};
-dset = ismrmrd.Dataset(mrd_files.dixon{1},'dataset');
+try
+    dset = ismrmrd.Dataset(mrd_files.dixon{1},'dataset');
+catch
+    dset = ismrmrd.Dataset(mrd_files.dixon{2},'dataset');
+end
 hdr = ismrmrd.xml.deserialize(dset.readxml);
 
 %% Reconstruct Images
 % Gas and Dissolved - don't need to write nifti
-[I_Gas_Sharp,I_Gas_Broad,I_Dissolved,~,~] = Reconstruct.gx_recon(mrd_files.dixon{1},0,true);
+try
+    [I_Gas_Sharp,I_Gas_Broad,I_Dissolved,~,~] = Reconstruct.gx_recon(mrd_files.dixon{1},0,true);
+catch
+    [I_Gas_Sharp,I_Gas_Broad,I_Dissolved,~,~] = Reconstruct.gx_recon(mrd_files.dixon{2},0,true);
+end
 if contains(participant_folder,'CABA072')
     I_Gas_Sharp = I_Gas_Sharp(:,:,:,1);
     I_Dissolved = I_Gas_Broad(:,:,:,2);
@@ -44,9 +52,13 @@ if contains(hdr.acquisitionSystemInformation.institutionName,'Iowa')
 end
 
 if isempty(mrd_files.ute)
-    anat = ImTools.DICOM_Load();
-    anat = imresize3(anat,[64 64 64]);
-    anat = flip(anat);%figure;montage(test/max(abs(test(:))))
+    try
+        anat = ImTools.DICOM_Load();
+        anat = imresize3(anat,[64 64 64]);
+        anat = flip(anat);%figure;montage(test/max(abs(test(:))))
+    catch
+        anat = zeros(size(I_Gas_Sharp));
+    end
 else
     try
         [anat,~] = Reconstruct.gxanat_recon(mrd_files.ute{1},true);
@@ -63,17 +75,17 @@ end
 anat_name = [bidsfolder '_anat.nii.gz'];
 maskpath = fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxmask.nii.gz'));
 if ~isfile(maskpath)
-    try
-        mask = Seg.docker_segment(abs(anat));
-        %Need to write Mask to bids:
-        writemask = ReadData.mat2canon(mask);
-        niftiwrite(writemask,fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxmask')),'Compressed',true);
-   
-    catch
+    % try
+    %     mask = Seg.docker_segment(abs(anat));
+    %     %Need to write Mask to bids:
+    %     writemask = ReadData.mat2canon(mask);
+    %     niftiwrite(writemask,fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxmask')),'Compressed',true);
+    % 
+    % catch
         [~,mask] = erode_dilate(I_Gas_Sharp(:,:,:,1),1,7);
         writemask = ReadData.mat2canon(mask);
         niftiwrite(writemask,fullfile(participant_folder,bidsfolder,'xegx',strrep(anat_name,'anat.nii.gz','gxmask')),'Compressed',true);
-    end
+ %   end
 end
 
 gxanat_fullpath = fullfile(participant_folder,bidsfolder,'xegx',anat_name);
@@ -90,8 +102,8 @@ if ~mask_okay
         mycommand = [ITKSNAP_Path ' -g "' gx_fullpath '" -o "' gxanat_fullpath '" -s "' maskpath '"'];
         system(mycommand);
     
-        mycommand = [ITKSNAP_Path ' -g "' gx_fullpath '" -s "' maskpath '"'];
-        system(mycommand);
+        % mycommand = [ITKSNAP_Path ' -g "' gx_fullpath '" -s "' maskpath '"'];
+        % system(mycommand);
     
 end
 
@@ -99,8 +111,11 @@ mask = double(niftiread(maskpath));
 mask = ReadData.canon2mat(mask);
 
 %%
-
-dset = ismrmrd.Dataset(mrd_files.dixon{1},'dataset');
+try
+    dset = ismrmrd.Dataset(mrd_files.dixon{1},'dataset');
+catch
+    dset = ismrmrd.Dataset(mrd_files.dixon{2},'dataset');
+end
 hdr = ismrmrd.xml.deserialize(dset.readxml);
 Gas_FA = hdr.sequenceParameters.flipAngle_deg(1);
 Dis_FA = hdr.sequenceParameters.flipAngle_deg(2);
@@ -125,7 +140,7 @@ if contains(participant_folder,'CAQA069')
 end
 
 %% Separate RBC and Membrane
-if contains(hdr.acquisitionSystemInformation.institutionName,'Iowa')
+if contains(hdr.acquisitionSystemInformation.institutionName,'Iowa') || contains(hdr.acquisitionSystemInformation.institutionName,'UT')
     [mem,rbc] = Reconstruct.dixon_sep(I_Dissolved(:,:,:,1),-R2M,I_Gas_Broad(:,:,:,1),logical(mask));
 else
     [mem,rbc] = Reconstruct.dixon_sep(I_Dissolved(:,:,:,1),R2M,I_Gas_Broad(:,:,:,1),logical(mask));
@@ -146,13 +161,15 @@ gas_scaled = gas_scaled*sind(Dis_FA)/sind(Gas_FA);
 rbc2gas = abs(rbc_cor)./abs(gas_scaled).*mask*100;
 mem2gas = abs(mem_cor)./abs(gas_scaled).*mask*100;
 
-vent_N4 = double(Seg.strong_N4_b(I_Gas_Sharp,mask));
+vent_N4 = double(Seg.strong_N4_b(abs(I_Gas_Sharp),mask));
 
-ventmax = prctile(abs(vent_N4(mask==1)),99);
+ventmax = prctile(abs(I_Gas_Sharp(mask==1)),99);
 vent_scaled = abs(I_Gas_Sharp)/ventmax;
 vent_scaled(vent_scaled>1) = 1;
 
-
+ventmax2 = prctile(abs(I_Gas_Sharp(mask==1)),99);
+vent_scaled2 = vent_N4/ventmax2;
+vent_scaled2(vent_scaled2>1) = 1;
 
 %% Binning Images
 %(Placeholders until I can get some good thresholds for 208 ppm excitation)
@@ -175,7 +192,7 @@ catch
 end
 
 
-vent_bin = Reconstruct.bin_images(vent_scaled,vent_thresh);
+vent_bin = Reconstruct.bin_images(vent_scaled2,vent_thresh);
 vent_bin = vent_bin.*mask;
 vent_mask = vent_bin;
 vent_mask(vent_bin == 1) = 0;

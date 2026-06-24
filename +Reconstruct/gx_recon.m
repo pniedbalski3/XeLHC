@@ -23,8 +23,11 @@ meas  = D.select(firstScan:D.getNumber);
 clear D;
 
 %% Get Gas Data
-Gas_ind = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 0);
-
+if meas.head.idx.set(1) ==1
+    Gas_ind = find(meas.head.idx.contrast == 1 & meas.head.idx.set == 1 & meas.head.measurement_uid == 0);
+else
+    Gas_ind = find(meas.head.idx.contrast == 1 & meas.head.measurement_uid == 0);
+end
 Gas_FID = meas.data(Gas_ind);
 Gas_Traj = meas.traj(Gas_ind);
 
@@ -45,8 +48,11 @@ Gas_Traj_Array(:,:,1:20) = [];
 gas_k = Gas_FID_Array;
 
 %% Get Dissolved Data
-Dis_ind = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 0);
-
+if meas.head.idx.set(1) ==1
+    Dis_ind = find(meas.head.idx.contrast == 2 & meas.head.idx.set == 1 & meas.head.measurement_uid == 0);
+else
+    Dis_ind = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 0);
+end
 Dis_FID = meas.data(Dis_ind);
 Dis_Traj = meas.traj(Dis_ind);
 

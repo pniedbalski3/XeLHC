@@ -9,10 +9,17 @@ GasFA = hdr.sequenceParameters.flipAngle_deg(1);
 DisFA = hdr.sequenceParameters.flipAngle_deg(2);
 TE = hdr.sequenceParameters.TE;
 
+%% This is legacy (and maybe right?)
 Dw = hdr.encoding.trajectoryDescription.userParameterDouble(1).value;
 
 DisFreq = hdr.encoding.trajectoryDescription.userParameterDouble(3).value;
 GasFreq = hdr.encoding.trajectoryDescription.userParameterDouble(2).value;
+
+%% Add to make Jim's MRD work
+GasFreq = hdr.userParameters.userParameterLong(1).value;
+DisFreq = hdr.userParameters.userParameterLong(2).value;
+DisFreq = GasFreq + DisFreq;
+
 
 chem_shift = (DisFreq-GasFreq)/GasFreq * 1e6;
 
@@ -37,6 +44,7 @@ end
 meas  = D.select(firstScan:D.getNumber);
 clear D;
 
+Dw = double(meas.head.sample_time_us(1));
 %% For now, I don't think I really care about the gas, so I can just get the dissolved spectra
 Dis_ind = find(meas.head.idx.contrast == 2);
 

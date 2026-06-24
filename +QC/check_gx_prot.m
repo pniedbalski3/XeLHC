@@ -14,7 +14,11 @@ rec_FOVz = hdr.encoding.reconSpace.fieldOfView_mm.z;
 
 TR = hdr.sequenceParameters.TR/1000;
 GasFA = hdr.sequenceParameters.flipAngle_deg(1); %PJN will need to check GE data to make sure gas/dissolved are properly flagged
-DisFA = hdr.sequenceParameters.flipAngle_deg(2);
+try
+    DisFA = hdr.sequenceParameters.flipAngle_deg(2);
+catch
+    DisFA = nan;
+end
 TE = hdr.sequenceParameters.TE(1);
 %Dw = hdr.encoding.trajectoryDescription.userParameterDouble(1).value;
 
@@ -22,8 +26,13 @@ try
     GasFreq = hdr.userParameters.userParameterLong(2).value;
     DisFreq = hdr.userParameters.userParameterLong(3).value;
 catch
-    GasFreq = hdr.userParameters.userParameterLong(1).value;
-    DisFreq = hdr.userParameters.userParameterLong(2).value;
+    try
+        GasFreq = hdr.userParameters.userParameterLong(1).value;
+        DisFreq = hdr.userParameters.userParameterLong(2).value;
+    catch
+        GasFreq = nan;
+        DisFreq = nan;
+    end
 end
 chem_shift = (DisFreq)/GasFreq * 1e6;
 
@@ -53,7 +62,11 @@ Dis_ind1 = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 0 & m
 if isempty(Dis_ind1)
     Dis_ind1 = find(meas.head.idx.contrast == 2 & meas.head.measurement_uid == 0);
 end
-Dw = meas.head.sample_time_us(Dis_ind1(1));
+try
+    Dw = meas.head.sample_time_us(Dis_ind1(1));
+catch
+    Dw = nan;
+end
 nProj = length(Dis_ind1);
 Pts = length(meas.data{1});
 

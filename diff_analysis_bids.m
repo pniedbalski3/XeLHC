@@ -11,6 +11,11 @@ try
     myind(myind==find(contains(diff_path(1,:),'Binned') & contains(diff_path(1,:),'.nii.gz'))) = [];
 catch
 end
+try
+    myind(myind==find(contains(diff_path(1,:),'ADC_Map') & contains(diff_path(1,:),'.nii.gz'))) = [];
+catch
+end
+
 % Some niftis write out as single slices, so need to handle that here.
 if length(myind) > 9
     slice_ind = zeros(length(myind),1);
@@ -26,7 +31,6 @@ if length(myind) > 9
 else
     sort_ind = 1:length(myind);
 end
-
 
 I_Diff = double(niftiread(fullfile(diff_path{2,myind(sort_ind(1))},diff_path{1,myind(sort_ind(1))})));
 for i = 2:length(myind)

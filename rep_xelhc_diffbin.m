@@ -11,6 +11,9 @@ end
 % end
 [~,part,~] = fileparts(participant_folder);
     part_start = strfind(part,'CA');
+    if isempty(part_start);
+        part_start = strfind(part,'Xe-');
+    end
     bids_fold = fullfile(participant_folder,['sub-' part(part_start:end)]);
     load(fullfile(bids_fold,'xedwi','Diffusion_Analysis.mat'),'ADC','mask')
     ADC = niftiread(fullfile(bids_fold,'xedwi','Binned ADC.nii.gz'));

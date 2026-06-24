@@ -39,7 +39,7 @@ Cmap(1,:) = [0 0 0];
 figure('Name','ADC Map')
 montage(ADC.*mask)
 colormap(Cmap);
-caxis([0 0.14]);
+caxis([0 0.06]);
 
 %% Save Results
 save(fullfile(mypath,'Diffusion_Analysis.mat'));

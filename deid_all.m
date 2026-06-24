@@ -1,4 +1,15 @@
-function deid_all(participant_folder)
+function deid_all(participant_folder,participantID)
+
+if nargin < 1
+    participant_folder = uigetdir();
+end
+if nargin < 2
+    participantID = inputdlg('Please Enter Participant ID',...
+        'Participant ID',...
+        [1 30],...
+        {''});
+    participantID = participantID{1};
+end
 
 %% create folder to hold deidentified data
 newdir = fullfile(participant_folder,'Deidentified_Imaging_Data');
@@ -14,10 +25,10 @@ mrd_files = struct2cell(mrd_files);
 for i = 1:length(mrd_files)
     try
         tmp_name = mrd_files{i}{1}; %this updates as nested cells... weird
-        deid_mrd(tmp_name);
+        deid_mrd_2(tmp_name,participantID);
         %% move deidentified data all to the same place
         [mypath,myfile,myext] = fileparts(tmp_name);
-        deidfile = fullfile(mypath,['DeID_' myfile myext]);
+        deidfile = fullfile(mypath,[myfile myext]);
         movefile(deidfile,newdir);
     catch
     end
